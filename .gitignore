@@ -1,0 +1,16 @@
+node_modules
+.pnpm-store
+
+# Build outputs
+dist
+out
+
+# Env
+.env
+.env.local
+.env.*.local
+
+# Misc
+.DS_Store
+*.log
+coverage

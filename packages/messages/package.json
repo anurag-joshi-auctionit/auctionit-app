@@ -1,0 +1,118 @@
+{
+  "name": "@auctionit/messages",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "default": "./src/index.ts"
+    },
+    "./lifting-bidders": {
+      "types": "./src/lifting-bidders/messages.ts",
+      "default": "./src/lifting-bidders/messages.ts"
+    },
+    "./lifting-clients": {
+      "types": "./src/lifting-clients/messages.ts",
+      "default": "./src/lifting-clients/messages.ts"
+    },
+    "./common": {
+      "types": "./src/common/messages.ts",
+      "default": "./src/common/messages.ts"
+    },
+    "./clients": {
+      "types": "./src/clients/messages.ts",
+      "default": "./src/clients/messages.ts"
+    },
+    "./bidders": {
+      "types": "./src/bidders/messages.ts",
+      "default": "./src/bidders/messages.ts"
+    },
+    "./users": {
+      "types": "./src/users/messages.ts",
+      "default": "./src/users/messages.ts"
+    },
+    "./items": {
+      "types": "./src/items/messages.ts",
+      "default": "./src/items/messages.ts"
+    },
+    "./benchmarks": {
+      "types": "./src/benchmarks/messages.ts",
+      "default": "./src/benchmarks/messages.ts"
+    },
+    "./auctions": {
+      "types": "./src/auctions/messages.ts",
+      "default": "./src/auctions/messages.ts"
+    },
+    "./service-invoices": {
+      "types": "./src/service-invoices/messages.ts",
+      "default": "./src/service-invoices/messages.ts"
+    },
+    "./subscriptions": {
+      "types": "./src/subscriptions/messages.ts",
+      "default": "./src/subscriptions/messages.ts"
+    },
+    "./roles": {
+      "types": "./src/roles/messages.ts",
+      "default": "./src/roles/messages.ts"
+    },
+    "./permissions": {
+      "types": "./src/permissions/messages.ts",
+      "default": "./src/permissions/messages.ts"
+    },
+    "./auth": {
+      "types": "./src/auth/messages.ts",
+      "default": "./src/auth/messages.ts"
+    },
+    "./authz": {
+      "types": "./src/authz/messages.ts",
+      "default": "./src/authz/messages.ts"
+    },
+    "./files": {
+      "types": "./src/files/messages.ts",
+      "default": "./src/files/messages.ts"
+    },
+    "./email": {
+      "types": "./src/email/messages.ts",
+      "default": "./src/email/messages.ts"
+    },
+    "./emd": {
+      "types": "./src/emd/messages.ts",
+      "default": "./src/emd/messages.ts"
+    },
+    "./reports": {
+      "types": "./src/reports/messages.ts",
+      "default": "./src/reports/messages.ts"
+    },
+    "./client-dashboard": {
+      "types": "./src/client-dashboard/messages.ts",
+      "default": "./src/client-dashboard/messages.ts"
+    },
+    "./bidder-dashboard": {
+      "types": "./src/bidder-dashboard/messages.ts",
+      "default": "./src/bidder-dashboard/messages.ts"
+    },
+    "./admin-dashboard": {
+      "types": "./src/admin-dashboard/messages.ts",
+      "default": "./src/admin-dashboard/messages.ts"
+    },
+    "./masters": {
+      "types": "./src/masters/messages.ts",
+      "default": "./src/masters/messages.ts"
+    },
+    "./sms": {
+      "types": "./src/sms/messages.ts",
+      "default": "./src/sms/messages.ts"
+    },
+    "./live": {
+      "types": "./src/live/messages.ts",
+      "default": "./src/live/messages.ts"
+    }
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.2"
+  }
+}

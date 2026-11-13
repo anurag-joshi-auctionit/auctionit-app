@@ -1,0 +1,19 @@
+{
+  "name": "@auctionit/authz",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./permission-keys": "./src/permission-keys.ts",
+    "./catalog": "./src/catalog.ts",
+    "./can": "./src/can.ts",
+    "./navigation-filter": "./src/navigation-filter.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.2"
+  }
+}

@@ -1,0 +1,60 @@
+{
+  "name": "@auctionit/lib",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./api": "./src/api.ts",
+    "./auth": "./src/auth.tsx",
+    "./guards": "./src/guards.tsx",
+    "./types": "./src/types.ts",
+    "./currency": "./src/currency.ts",
+  "./date": "./src/date.ts",
+  "./parse-picker-input": "./src/parse-picker-input.ts",
+  "./gst-rates": "./src/gst-rates.ts",
+    "./loading-scope": "./src/loading-scope.ts",
+    "./time-of-day": "./src/time-of-day.ts",
+    "./lot-schedule": "./src/lot-schedule.ts",
+    "./download-blob": "./src/download-blob.ts",
+    "./download-authenticated-blob": "./src/download-authenticated-blob.ts",
+    "./validation": "./src/validation/index.ts",
+    "./authz": "./src/authz.ts",
+    "./fuzzy-match": "./src/fuzzy-match.ts",
+    "./live-auction": "./src/live-auction.ts",
+    "./live-transport": "./src/live-transport.ts",
+    "./live-bid-bounds": "./src/live-bid-bounds.ts",
+    "./bid-direction": "./src/bid-direction.ts",
+    "./bid-limit-vs-start": "./src/bid-limit-vs-start.ts",
+    "./bid-increment-vs-price": "./src/bid-increment-vs-price.ts",
+    "./winner-rank": "./src/winner-rank.ts",
+    "./auction-modes": "./src/auction-modes.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@auctionit/authz": "workspace:*",
+    "@auctionit/messages": "workspace:*",
+    "date-fns": "^4.1.0",
+    "fuzzball": "^2.2.6",
+    "socket.io-client": "^4.8.3",
+    "zod": "^3.24.1"
+  },
+
+  "peerDependencies": {
+    "react": "^19",
+    "react-dom": "^19",
+    "react-router-dom": "^7"
+  },
+  "devDependencies": {
+    "@types/react": "^19.0.4",
+    "@types/react-dom": "^19.0.2",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "react-router-dom": "^7.0.0",
+    "typescript": "^5.7.2",
+    "vitest": "^3.0.5"
+  }
+}

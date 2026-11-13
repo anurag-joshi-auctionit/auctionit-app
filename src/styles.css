@@ -1,0 +1,20 @@
+@import "tailwindcss";
+@import "@auctionit/ui/styles/theme.css";
+@import "@fontsource/open-sans/400.css";
+@import "@fontsource/open-sans/500.css";
+@import "@fontsource/open-sans/600.css";
+@import "@fontsource/open-sans/700.css";
+@import "@fontsource/hanken-grotesk/400.css";
+
+@source "../packages/ui/src/**/*.{ts,tsx}";
+
+:root {
+  --font-open-sans: "Open Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-hanken-grotesk: "Hanken Grotesk", ui-serif, Georgia, serif;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}

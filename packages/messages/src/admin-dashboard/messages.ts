@@ -1,0 +1,32 @@
+export const AdminDashboardMessages = {
+  VALIDATION_FAILED: "Please check the filters and try again.",
+  DATE_RANGE_REQUIRED: "Select a date range.",
+  SELECT_FILTERS_TITLE: "Select a date range",
+  SELECT_FILTERS_DESCRIPTION:
+    "Choose a date range to view the admin dashboard.",
+  EMPTY_CHART_TITLE: "No data",
+  EMPTY_CHART_DESCRIPTION: "No records found for this date range.",
+  EMPTY_TABLE_TITLE: "No rows",
+  EMPTY_TABLE_DESCRIPTION: "Nothing to show for this period.",
+  EMPTY_CELL_PLACEHOLDER: "—",
+  AUCTIONS_LOAD_ERROR_TITLE: "Could not load auctions",
+  AUCTIONS_LOAD_ERROR_DESCRIPTION: "Failed to load auction overview metrics.",
+  CLIENTS_LOAD_ERROR_TITLE: "Could not load clients",
+  CLIENTS_LOAD_ERROR_DESCRIPTION: "Failed to load client overview metrics.",
+  BIDDERS_LOAD_ERROR_TITLE: "Could not load bidders",
+  BIDDERS_LOAD_ERROR_DESCRIPTION: "Failed to load bidder overview metrics.",
+  ITEMS_LOAD_ERROR_TITLE: "Could not load items",
+  ITEMS_LOAD_ERROR_DESCRIPTION: "Failed to load inventory items metrics.",
+  MATERIALS_LOAD_ERROR_TITLE: "Could not load materials",
+  MATERIALS_LOAD_ERROR_DESCRIPTION: "Failed to load materials metrics.",
+  BENCHMARK_LOAD_ERROR_TITLE: "Could not load benchmarking",
+  BENCHMARK_LOAD_ERROR_DESCRIPTION: "Failed to load benchmarking metrics.",
+  LIFTING_LOAD_ERROR_TITLE: "Could not load lifting",
+  LIFTING_LOAD_ERROR_DESCRIPTION: "Failed to load lifting overview metrics.",
+  SERVICE_INVOICES_LOAD_ERROR_TITLE: "Could not load service invoices",
+  SERVICE_INVOICES_LOAD_ERROR_DESCRIPTION:
+    "Failed to load service invoice metrics.",
+  SUBSCRIPTIONS_LOAD_ERROR_TITLE: "Could not load subscriptions",
+  SUBSCRIPTIONS_LOAD_ERROR_DESCRIPTION:
+    "Failed to load subscription overview metrics.",
+};
