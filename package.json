@@ -8,10 +8,10 @@
     "node": ">=20"
   },
   "scripts": {
-    "predev": "lsof -ti:3002 | xargs kill -9 2>/dev/null; true",
-    "dev": "vite --port 3002",
+    "predev": "lsof -ti:3502 | xargs kill -9 2>/dev/null; true",
+    "dev": "vite --port 3502",
     "build": "tsc --noEmit && vite build",
-    "preview": "vite preview --port 3002",
+    "preview": "vite preview --port 3502",
     "typecheck": "tsc --noEmit",
     "lint": "echo no lint"
   },

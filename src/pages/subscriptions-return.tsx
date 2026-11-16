@@ -10,7 +10,7 @@ import {
 } from "@/lib/confirm-subscription-payment";
 
 const MAX_POLLS = 12;
-const API_URL = import.meta.env.VITE_API_URL ?? "http://localhost:4000";
+const API_URL = import.meta.env.VITE_API_URL ?? "http://localhost:3500";
 
 export function SubscriptionsReturnPage() {
   const navigate = useNavigate();

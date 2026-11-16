@@ -7,7 +7,7 @@ import { BrowserRouter } from "react-router-dom";
 import { App } from "./App";
 import "./styles.css";
 
-const apiUrl = import.meta.env.VITE_API_URL ?? "http://localhost:4000";
+const apiUrl = import.meta.env.VITE_API_URL ?? "http://localhost:3500";
 
 const queryClient = new QueryClient({
   defaultOptions: { queries: { staleTime: 30_000, refetchOnWindowFocus: false } },
