@@ -107,6 +107,10 @@
     "./live": {
       "types": "./src/live/messages.ts",
       "default": "./src/live/messages.ts"
+    },
+    "./bidder-ra-stages": {
+      "types": "./src/bidder-ra-stages/messages.ts",
+      "default": "./src/bidder-ra-stages/messages.ts"
     }
   },
   "scripts": {

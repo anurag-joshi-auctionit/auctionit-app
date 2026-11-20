@@ -98,6 +98,11 @@ const AuctionDetailPageBidder = lazy(() =>
     default: m.AuctionDetailPageBidder,
   })),
 );
+const RaStageResponsePageBidder = lazy(() =>
+  import("@/pages/ra-stages/ra-stage-response-bidder").then((m) => ({
+    default: m.RaStageResponsePageBidder,
+  })),
+);
 const ClosedAuctionsPageBidder = lazy(() =>
   import("@/pages/auctions/closed-auctions-bidder").then((m) => ({
     default: m.ClosedAuctionsPageBidder,
@@ -406,6 +411,14 @@ export function App() {
                   client={<AuctionDetailPageClient />}
                   bidder={<AuctionDetailPageBidder />}
                 />
+              }
+            />
+            <Route
+              path="ra-stages/:auctionId/:stageKey"
+              element={
+                <PortalPermission permission="module.portal-bidder-auctions">
+                  <RaStageResponsePageBidder />
+                </PortalPermission>
               }
             />
             <Route path="live" element={<LegacyLiveRedirect />} />

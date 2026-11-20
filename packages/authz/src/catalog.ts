@@ -227,6 +227,25 @@ export const PERMISSION_CATALOG: readonly PermissionCatalogEntry[] = [
     "Live control actions beyond live auctions view",
     "Auctions",
   ),
+  entry(
+    "auction.ra-stages.write",
+    "Manage RA Stages",
+    "Configure RFI/RFP/RFQ stages, invitations, and review responses",
+    "Auctions",
+  ),
+
+  entry(
+    "question-templates.read",
+    "View question templates",
+    "List and view RA Stages question templates",
+    "Auctions",
+  ),
+  entry(
+    "question-templates.write",
+    "Manage question templates",
+    "Create/edit RA Stages question templates",
+    "Auctions",
+  ),
 
   entry("clients.read", "View clients", "List and view clients", "Clients"),
   entry("client.add", "Create client", "Create a client", "Clients"),

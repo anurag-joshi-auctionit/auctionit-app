@@ -41,6 +41,11 @@ export const PERMISSION_KEYS = [
   "auction.approvals.write",
   "auction.live.auctions",
   "auction.live.control",
+  "auction.ra-stages.write",
+
+  // Question templates (RA Stages due-diligence questions)
+  "question-templates.read",
+  "question-templates.write",
 
   // Clients
   "clients.read",
