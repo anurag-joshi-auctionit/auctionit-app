@@ -1,0 +1,85 @@
+name: Publish to Docker Hub - Calldesk Backend
+
+on:
+  push:
+    branches: [reverse-auction]
+  workflow_dispatch:
+
+env:
+  IMAGE: saurabhattauctionit/reverse-auction
+
+  # The backend publishes into this same Docker Hub repository, so the tag
+  # namespace is shared with it. Every tag this workflow writes — docker and
+  # git alike — carries the prefix, so a frontend release can never overwrite
+  # `:latest` or a version the backend already published.
+  TAG_PREFIX: auction-it-frontend-app-
+
+permissions:
+  contents: write
+
+concurrency:
+  group: publish-backend
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Work out the next backend version
+        id: version
+        run: |
+          set -euo pipefail
+
+          latest=$(git tag -l "${TAG_PREFIX}[0-9]*.[0-9]*.[0-9]*" | sort -V | tail -n 1)
+
+          if [ -z "$latest" ]; then
+            next="0.0.1"
+          else
+            v=${latest#$TAG_PREFIX}
+            major=${v%%.*}
+            rest=${v#*.}
+            minor=${rest%%.*}
+            patch=${rest##*.}
+            next="${major}.${minor}.$((patch + 1))"
+          fi
+
+          echo "version=$next" >> "$GITHUB_OUTPUT"
+          echo "previous: ${latest:-none}  ->  next: $next"
+
+      - uses: docker/setup-buildx-action@v3
+
+      - uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: |
+            ${{ env.IMAGE }}:${{ env.TAG_PREFIX }}${{ steps.version.outputs.version }}
+            ${{ env.IMAGE }}:${{ env.TAG_PREFIX }}latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Record the version as a git tag
+        run: |
+          set -euo pipefail
+          git tag "${TAG_PREFIX}${{ steps.version.outputs.version }}"
+          git push origin "${TAG_PREFIX}${{ steps.version.outputs.version }}"
+
+      - name: Summary
+        run: |
+          {
+            echo "### Pushed \`${{ env.IMAGE }}:${{ env.TAG_PREFIX }}${{ steps.version.outputs.version }}\`"
+            echo
+            echo '```bash'
+            echo "docker pull ${{ env.IMAGE }}:${{ env.TAG_PREFIX }}${{ steps.version.outputs.version }}"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
