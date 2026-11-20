@@ -265,7 +265,7 @@ export function App() {
       />
       <Route
         element={
-          <RequireAuth>
+          <RequireAuth fallback={<RouteFallback />}>
             <Outlet />
           </RequireAuth>
         }
