@@ -53,7 +53,7 @@ export function RaStagesPageBidder() {
   return (
     <div className="space-y-6 p-4">
       <PageHeader
-        title="Reverse Auction Stages"
+        title="RA Stages"
         description="Complete questionnaires for each stage within the open window."
       />
 

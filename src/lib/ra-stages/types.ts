@@ -6,7 +6,7 @@ export const RA_STAGE_LABELS: Record<RaStageKey, string> = {
   rfq: "RFQ",
 };
 
-export type RaStageResponseStatus = "invited" | "submitted";
+export type RaStageResponseStatus = "invited" | "draft" | "submitted";
 export type RaStageStatus = "draft" | "published" | "closed";
 
 export type MyRaStageInvitation = {

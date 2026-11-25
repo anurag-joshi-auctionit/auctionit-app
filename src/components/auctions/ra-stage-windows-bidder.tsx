@@ -37,8 +37,14 @@ function groupByClient(data: RaStageWindow[]): { key: string; name: string; clie
   return [...map.entries()].map(([key, g]) => ({ key, clientId: null as null, ...g }));
 }
 
+const RESPONSE_STATUS_LABEL: Record<RaStageWindow["responseStatus"], string> = {
+  invited: "Invited",
+  draft: "Draft",
+  submitted: "Submitted",
+};
+
 function ResponseStatusBadge({ status }: { status: RaStageWindow["responseStatus"] }) {
-  return <Badge>{status === "invited" ? "Invited" : "Submitted"}</Badge>;
+  return <Badge>{RESPONSE_STATUS_LABEL[status]}</Badge>;
 }
 
 function ReviewStatusBadge({ w }: { w: RaStageWindow }) {
@@ -50,23 +56,22 @@ function ReviewStatusBadge({ w }: { w: RaStageWindow }) {
 
 function ActionCell({ w }: { w: RaStageWindow }) {
   const label = STAGE_LABEL[w.stageKey];
-  const isOpen =
+  const windowOpen =
     w.stageStatus === "published" &&
-    w.responseStatus === "invited" &&
     (!w.startsAt || new Date(w.startsAt) <= new Date()) &&
     (!w.endsAt || new Date(w.endsAt) > new Date());
 
-  if (isOpen) {
-    return (
-      <Button size="sm" href={`/auctions/${w.auctionId}/ra-stages/${w.stageKey}`}>
-        Submit {label}
-      </Button>
-    );
-  }
   if (w.responseStatus === "submitted") {
     return (
       <Button size="sm" href={`/auctions/${w.auctionId}/ra-stages/${w.stageKey}`}>
         View {label}
+      </Button>
+    );
+  }
+  if (windowOpen && (w.responseStatus === "invited" || w.responseStatus === "draft")) {
+    return (
+      <Button size="sm" href={`/auctions/${w.auctionId}/ra-stages/${w.stageKey}`}>
+        {w.responseStatus === "draft" ? `Continue ${label}` : `Submit ${label}`}
       </Button>
     );
   }

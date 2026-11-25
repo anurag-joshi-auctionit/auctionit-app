@@ -13,6 +13,7 @@ export const BidderRaStagesValidationMessages = {
 
 export const BidderRaStagesSuccessMessages = {
   RESPONSE_SUBMITTED: "Response submitted",
+  DRAFT_SAVED: "Draft saved",
 } as const;
 
 export const BidderRaStagesStatusMessages = {

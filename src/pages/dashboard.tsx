@@ -55,12 +55,7 @@ function DashboardRaStages() {
   if (data.length === 0) return null;
   return (
     <div className="space-y-2">
-      <div>
-        <h2 className="text-sm font-medium">Reverse Auction Stages</h2>
-        <p className="text-muted-foreground text-xs">
-          Complete questionnaires for each stage within the open window.
-        </p>
-      </div>
+      <DashboardSectionHeader id="ra-stages" title="RA Stages" />
       <RaStageWindowsBidder data={data} />
     </div>
   );

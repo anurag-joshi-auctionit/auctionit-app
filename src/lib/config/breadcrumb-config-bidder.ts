@@ -23,11 +23,11 @@ const breadcrumbMap: Record<string, BreadcrumbConfigItem[]> = {
   ],
   "/auctions/sealed-bids": [
     { label: "Auctions", href: "/auctions/today" },
-    { label: "Sealed-bid Auctions", href: "/auctions/sealed-bids" },
+    { label: "Sealed-bid Windows", href: "/auctions/sealed-bids" },
   ],
   "/auctions/ra-stages": [
     { label: "Auctions", href: "/auctions/today" },
-    { label: "Reverse Auction Stages", href: "/auctions/ra-stages" },
+    { label: "RA Stages", href: "/auctions/ra-stages" },
   ],
   "/emd": [{ label: "EMD", href: "/emd" }],
   "/bank-account": [{ label: "Bank Account", href: "/bank-account" }],

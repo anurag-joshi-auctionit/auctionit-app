@@ -11,7 +11,7 @@ export type RaStageWindow = {
   stageStatus: "draft" | "published" | "closed";
   startsAt: string | null;
   endsAt: string | null;
-  responseStatus: "invited" | "submitted";
+  responseStatus: "invited" | "draft" | "submitted";
   isShortlisted: boolean | null;
 };
 

@@ -31,12 +31,12 @@ export const bidderNavigationConfig: NavigationConfig = {
           permission: "module.portal-bidder-live",
         },
         {
-          name: "Sealed-bid Auctions",
+          name: "Sealed-bid Windows",
           href: "/auctions/sealed-bids",
           permission: "module.portal-bidder-live",
         },
         {
-          name: "Reverse Auction Stages",
+          name: "RA Stages",
           href: "/auctions/ra-stages",
           permission: "module.portal-bidder-auctions",
         },

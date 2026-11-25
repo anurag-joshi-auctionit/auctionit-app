@@ -3,6 +3,7 @@ import {
   BidderRaStagesErrorMessages,
   BidderRaStagesSuccessMessages,
 } from "@auctionit/messages/bidder-ra-stages";
+
 import { toast } from "@auctionit/ui";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { MyRaStageDetail, MyRaStageInvitation, RaStageAnswerDraft, RaStageKey } from "./types";
@@ -42,7 +43,16 @@ type SubmitInput = {
   files: Record<string, File | null>;
 };
 
-export function useSubmitRaStageResponseMutation(
+function buildStageFormData(answers: RaStageAnswerDraft, files: Record<string, File | null>): FormData {
+  const formData = new FormData();
+  formData.append("answers", JSON.stringify(answers));
+  for (const [questionId, file] of Object.entries(files)) {
+    if (file) formData.append(`file_${questionId}`, file);
+  }
+  return formData;
+}
+
+export function useSaveDraftRaStageResponseMutation(
   auctionId: number,
   stageKey: RaStageKey,
 ) {
@@ -51,21 +61,15 @@ export function useSubmitRaStageResponseMutation(
 
   return useMutation({
     mutationFn: async ({ answers, files }: SubmitInput) => {
-      const formData = new FormData();
-      formData.append("answers", JSON.stringify(answers));
-      for (const [questionId, file] of Object.entries(files)) {
-        if (file) formData.append(`file_${questionId}`, file);
-      }
-
       let res: Response;
       try {
         res = await fetch(
-          `${api.baseUrl}/bidder-ra-stages/auctions/${auctionId}/${stageKey}/submit`,
+          `${api.baseUrl}/bidder-ra-stages/auctions/${auctionId}/${stageKey}/save-draft`,
           {
             method: "POST",
             credentials: "include",
             headers: api.appHeaders(),
-            body: formData,
+            body: buildStageFormData(answers, files),
           },
         );
       } catch {
@@ -75,10 +79,48 @@ export function useSubmitRaStageResponseMutation(
       const body = await res.json().catch(() => null);
       if (!res.ok) {
         const message =
-          body &&
-          typeof body === "object" &&
-          "error" in body &&
-          typeof (body as { error: unknown }).error === "string"
+          body && typeof body === "object" && "error" in body && typeof (body as { error: unknown }).error === "string"
+            ? (body as { error: string }).error
+            : BidderRaStagesErrorMessages.STAGE_NOT_FOUND;
+        throw new ApiError(res.status, body, message);
+      }
+      return body as { ok: true };
+    },
+    onSuccess: () => {
+      toast.success(BidderRaStagesSuccessMessages.DRAFT_SAVED);
+      void queryClient.invalidateQueries({ queryKey: myRaStagesKeys.all });
+    },
+  });
+}
+
+export function useSubmitRaStageResponseMutation(
+  auctionId: number,
+  stageKey: RaStageKey,
+) {
+  const { api } = useAuth();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ answers, files }: SubmitInput) => {
+      let res: Response;
+      try {
+        res = await fetch(
+          `${api.baseUrl}/bidder-ra-stages/auctions/${auctionId}/${stageKey}/submit`,
+          {
+            method: "POST",
+            credentials: "include",
+            headers: api.appHeaders(),
+            body: buildStageFormData(answers, files),
+          },
+        );
+      } catch {
+        throw new ApiError(0, null, BidderRaStagesErrorMessages.STAGE_NOT_FOUND);
+      }
+
+      const body = await res.json().catch(() => null);
+      if (!res.ok) {
+        const message =
+          body && typeof body === "object" && "error" in body && typeof (body as { error: unknown }).error === "string"
             ? (body as { error: string }).error
             : BidderRaStagesErrorMessages.STAGE_NOT_FOUND;
         throw new ApiError(res.status, body, message);

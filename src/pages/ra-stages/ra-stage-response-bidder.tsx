@@ -12,10 +12,11 @@ import {
   formatDateTime,
   toast,
 } from "@auctionit/ui";
+import { Edit05, Loading01, Save01 } from "@untitledui/icons";
 import { useState } from "react";
 import { useParams } from "react-router-dom";
 import { QuestionAnswerField } from "@/components/ra-stages/question-answer-field";
-import { useMyRaStageQuery, useSubmitRaStageResponseMutation } from "@/lib/ra-stages/queries";
+import { useMyRaStageQuery, useSaveDraftRaStageResponseMutation, useSubmitRaStageResponseMutation } from "@/lib/ra-stages/queries";
 import {
   RA_STAGE_LABELS,
   type MyRaStageDetail,
@@ -48,7 +49,9 @@ function StageDescription({ detail }: { detail: MyRaStageDetail }) {
   }
 
   let statusBadge: React.ReactNode = null;
-  if (responseStatus === "submitted") {
+  if (responseStatus === "draft") {
+    statusBadge = <Badge>Draft</Badge>;
+  } else if (responseStatus === "submitted") {
     if (isShortlisted === true) {
       statusBadge = <Badge>{BidderRaStagesStatusMessages.SHORTLISTED}</Badge>;
     } else if (isShortlisted === false) {
@@ -78,7 +81,8 @@ export function RaStageResponsePageBidder() {
     : undefined;
 
   const query = useMyRaStageQuery(validAuctionId ? auctionId : undefined, stageKey);
-  const mutation = useSubmitRaStageResponseMutation(auctionId, stageKey ?? "rfi");
+  const submitMutation = useSubmitRaStageResponseMutation(auctionId, stageKey ?? "rfi");
+  const draftMutation = useSaveDraftRaStageResponseMutation(auctionId, stageKey ?? "rfi");
 
   const [answers, setAnswers] = useState<RaStageAnswerDraft>({});
   const [files, setFiles] = useState<Record<string, File | null>>({});
@@ -105,6 +109,10 @@ export function RaStageResponsePageBidder() {
 
   const stageLabel = RA_STAGE_LABELS[stageKey];
 
+  const handleSaveDraft = () => {
+    draftMutation.mutate({ answers, files });
+  };
+
   const handleSubmit = () => {
     if (!detail) return;
     for (const q of detail.questions) {
@@ -124,7 +132,7 @@ export function RaStageResponsePageBidder() {
       }
     }
 
-    mutation.mutate(
+    submitMutation.mutate(
       { answers, files },
       {
         onSuccess: () => {
@@ -134,11 +142,35 @@ export function RaStageResponsePageBidder() {
     );
   };
 
+  const isBusy = submitMutation.isPending || draftMutation.isPending;
+
   return (
     <div className="space-y-6 p-4">
       <PageHeader
         title={stageLabel}
         description={detail ? <StageDescription detail={detail} /> : "Loading stage details…"}
+        actions={
+          detail && detail.responseStatus !== "submitted" && detail.stageStatus === "published" ? (
+            <div className="flex flex-wrap gap-3">
+              <Button onClick={handleSaveDraft} disabled={isBusy}>
+                {draftMutation.isPending ? (
+                  <Loading01 className="size-4 animate-spin" />
+                ) : (
+                  <Edit05 className="size-4" />
+                )}
+                Save Draft
+              </Button>
+              <Button onClick={handleSubmit} disabled={isBusy}>
+                {submitMutation.isPending ? (
+                  <Loading01 className="size-4 animate-spin" />
+                ) : (
+                  <Save01 className="size-4" />
+                )}
+                Submit Response
+              </Button>
+            </div>
+          ) : undefined
+        }
       />
 
       {query.isLoading ? (
@@ -151,9 +183,6 @@ export function RaStageResponsePageBidder() {
         />
       ) : detail.responseStatus === "submitted" ? (
         <div className="space-y-4">
-          {detail.isShortlisted === false && detail.rejectionReason ? (
-            <p className="text-muted-foreground text-sm">{detail.rejectionReason}</p>
-          ) : null}
           {detail.questions.map((q, i) => (
             <div key={q.id} className="space-y-1">
               <div className="flex flex-wrap items-center gap-2">
@@ -196,14 +225,11 @@ export function RaStageResponsePageBidder() {
                   onChange={(value) => setAnswers((prev) => ({ ...prev, [q.id]: value }))}
                   file={files[q.id] ?? null}
                   onFileChange={(file) => setFiles((prev) => ({ ...prev, [q.id]: file }))}
-                  disabled={mutation.isPending}
+                  disabled={isBusy}
                 />
               </div>
             </div>
           ))}
-          <Button onClick={handleSubmit} disabled={mutation.isPending}>
-            Submit Response
-          </Button>
         </div>
       )}
     </div>
