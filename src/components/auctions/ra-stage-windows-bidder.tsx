@@ -10,6 +10,7 @@ import {
   TableRow,
   formatDateTime,
 } from "@auctionit/ui";
+import { useNavigate } from "react-router-dom";
 import { type RaStageKey, type RaStageWindow } from "@/hooks/use-ra-stage-windows";
 import { auctionDisplayLabel } from "@/lib/portal-display-labels";
 import {
@@ -55,22 +56,22 @@ function ReviewStatusBadge({ w }: { w: RaStageWindow }) {
 }
 
 function ActionCell({ w }: { w: RaStageWindow }) {
+  const navigate = useNavigate();
   const label = STAGE_LABEL[w.stageKey];
   const windowOpen =
     w.stageStatus === "published" &&
     (!w.startsAt || new Date(w.startsAt) <= new Date()) &&
     (!w.endsAt || new Date(w.endsAt) > new Date());
 
+  const go = () =>
+    navigate(`/auctions/ra-stages/${w.stageKey}`, { state: { auctionId: w.auctionId } });
+
   if (w.responseStatus === "submitted") {
-    return (
-      <Button size="sm" href={`/auctions/${w.auctionId}/ra-stages/${w.stageKey}`}>
-        View {label}
-      </Button>
-    );
+    return <Button size="sm" onClick={go}>View {label}</Button>;
   }
   if (windowOpen && (w.responseStatus === "invited" || w.responseStatus === "draft")) {
     return (
-      <Button size="sm" href={`/auctions/${w.auctionId}/ra-stages/${w.stageKey}`}>
+      <Button size="sm" onClick={go}>
         {w.responseStatus === "draft" ? `Continue ${label}` : `Submit ${label}`}
       </Button>
     );

@@ -2,7 +2,6 @@ import {
   BidderRaStagesStatusMessages,
   BidderRaStagesValidationMessages,
 } from "@auctionit/messages/bidder-ra-stages";
-import type React from "react";
 import {
   Badge,
   Button,
@@ -14,18 +13,27 @@ import {
 } from "@auctionit/ui";
 import { Edit05, Loading01, Save01 } from "@untitledui/icons";
 import { useState } from "react";
-import { useParams } from "react-router-dom";
+import { useLocation, useParams } from "react-router-dom";
 import { QuestionAnswerField } from "@/components/ra-stages/question-answer-field";
-import { useMyRaStageQuery, useSaveDraftRaStageResponseMutation, useSubmitRaStageResponseMutation } from "@/lib/ra-stages/queries";
+import {
+  useMyRaStageQuery,
+  useSaveDraftRaStageResponseMutation,
+  useSubmitRaStageResponseMutation,
+} from "@/lib/ra-stages/queries";
 import {
   RA_STAGE_LABELS,
-  type MyRaStageDetail,
   type RaStageAnswerDraft,
   type RaStageAnswerType,
   type RaStageKey,
 } from "@/lib/ra-stages/types";
 
 const STAGE_KEYS: RaStageKey[] = ["rfi", "rfp", "rfq"];
+
+const RESPONSE_STATUS_LABEL: Record<string, string> = {
+  invited: "Invited",
+  draft: "Draft",
+  submitted: "Submitted",
+};
 
 const ANSWER_TYPE_LABEL: Record<RaStageAnswerType, string> = {
   short_text: "Single Line Text",
@@ -37,52 +45,30 @@ const ANSWER_TYPE_LABEL: Record<RaStageAnswerType, string> = {
   file_upload: "File Upload",
 };
 
-function StageDescription({ detail }: { detail: MyRaStageDetail }) {
-  const { stageStatus, startsAt, endsAt, responseStatus, isShortlisted } = detail;
-
-  const windowParts: string[] = [];
-  if (stageStatus === "closed") {
-    if (endsAt) windowParts.push(`Ended ${formatDateTime(endsAt) ?? ""}`);
-  } else {
-    if (startsAt) windowParts.push(`Starts At: ${formatDateTime(startsAt) ?? startsAt}`);
-    if (endsAt) windowParts.push(`Ends At: ${formatDateTime(endsAt) ?? endsAt}`);
-  }
-
-  let statusBadge: React.ReactNode = null;
-  if (responseStatus === "draft") {
-    statusBadge = <Badge>Draft</Badge>;
-  } else if (responseStatus === "submitted") {
-    if (isShortlisted === true) {
-      statusBadge = <Badge>{BidderRaStagesStatusMessages.SHORTLISTED}</Badge>;
-    } else if (isShortlisted === false) {
-      statusBadge = <Badge>{BidderRaStagesStatusMessages.REJECTED}</Badge>;
-    } else {
-      statusBadge = <Badge>{BidderRaStagesStatusMessages.UNDER_REVIEW}</Badge>;
-    }
-  }
-
-  return (
-    <div className="flex flex-wrap items-center gap-2">
-      {windowParts.length > 0 ? (
-        <span>{windowParts.join(" | ")}</span>
-      ) : null}
-      {statusBadge}
-    </div>
-  );
-}
-
 export function RaStageResponsePageBidder() {
-  const { auctionId: auctionIdParam, stageKey: stageKeyParam } = useParams();
+  const { stageKey: stageKeyParam } = useParams();
+  const location = useLocation();
 
-  const auctionId = Number(auctionIdParam);
+  const auctionId = Number(
+    (location.state as { auctionId?: unknown } | null)?.auctionId,
+  );
   const validAuctionId = Number.isInteger(auctionId) && auctionId > 0;
   const stageKey = STAGE_KEYS.includes(stageKeyParam as RaStageKey)
     ? (stageKeyParam as RaStageKey)
     : undefined;
 
-  const query = useMyRaStageQuery(validAuctionId ? auctionId : undefined, stageKey);
-  const submitMutation = useSubmitRaStageResponseMutation(auctionId, stageKey ?? "rfi");
-  const draftMutation = useSaveDraftRaStageResponseMutation(auctionId, stageKey ?? "rfi");
+  const query = useMyRaStageQuery(
+    validAuctionId ? auctionId : undefined,
+    stageKey,
+  );
+  const submitMutation = useSubmitRaStageResponseMutation(
+    auctionId,
+    stageKey ?? "rfi",
+  );
+  const draftMutation = useSaveDraftRaStageResponseMutation(
+    auctionId,
+    stageKey ?? "rfi",
+  );
 
   const [answers, setAnswers] = useState<RaStageAnswerDraft>({});
   const [files, setFiles] = useState<Record<string, File | null>>({});
@@ -102,7 +88,10 @@ export function RaStageResponsePageBidder() {
   if (!validAuctionId || !stageKey) {
     return (
       <div className="p-4">
-        <DataPanelError title="Invalid link" message="This stage link is invalid." />
+        <DataPanelError
+          title="Invalid link"
+          message="This stage link is invalid."
+        />
       </div>
     );
   }
@@ -119,7 +108,9 @@ export function RaStageResponsePageBidder() {
       if (!q.required) continue;
       if (q.answerType === "file_upload") {
         if (!files[q.id]) {
-          toast.error(BidderRaStagesValidationMessages.ALL_REQUIRED_QUESTIONS_MUST_BE_ANSWERED);
+          toast.error(
+            BidderRaStagesValidationMessages.ALL_REQUIRED_QUESTIONS_MUST_BE_ANSWERED,
+          );
           return;
         }
         continue;
@@ -127,7 +118,9 @@ export function RaStageResponsePageBidder() {
       const value = answers[q.id];
       const hasValue = Array.isArray(value) ? value.length > 0 : !!value;
       if (!hasValue) {
-        toast.error(BidderRaStagesValidationMessages.ALL_REQUIRED_QUESTIONS_MUST_BE_ANSWERED);
+        toast.error(
+          BidderRaStagesValidationMessages.ALL_REQUIRED_QUESTIONS_MUST_BE_ANSWERED,
+        );
         return;
       }
     }
@@ -148,9 +141,11 @@ export function RaStageResponsePageBidder() {
     <div className="space-y-6 p-4">
       <PageHeader
         title={stageLabel}
-        description={detail ? <StageDescription detail={detail} /> : "Loading stage details…"}
+        description={undefined}
         actions={
-          detail && detail.responseStatus !== "submitted" && detail.stageStatus === "published" ? (
+          detail &&
+          detail.responseStatus !== "submitted" &&
+          detail.stageStatus === "published" ? (
             <div className="flex flex-wrap gap-3">
               <Button onClick={handleSaveDraft} disabled={isBusy}>
                 {draftMutation.isPending ? (
@@ -178,58 +173,161 @@ export function RaStageResponsePageBidder() {
       ) : query.isError || !detail ? (
         <DataPanelError
           title="Could not load this stage"
-          message={query.error instanceof Error ? query.error.message : "Please try again."}
-          onRetry={() => void query.refetch()}
-        />
-      ) : detail.responseStatus === "submitted" ? (
-        <div className="space-y-4">
-          {detail.questions.map((q, i) => (
-            <div key={q.id} className="space-y-1">
-              <div className="flex flex-wrap items-center gap-2">
-                <span className="text-muted-foreground text-sm font-medium">{i + 1}.</span>
-                <p className="text-sm font-medium">{q.question}</p>
-                <Badge color="blue">{ANSWER_TYPE_LABEL[q.answerType]}</Badge>
-                {q.required ? <Badge color="yellow">Required</Badge> : null}
-              </div>
-              <p className="text-muted-foreground pl-5 text-sm">
-                {Array.isArray(detail.answers[q.id])
-                  ? (detail.answers[q.id] as string[]).join(", ")
-                  : (detail.answers[q.id] as string | null) ?? "—"}
-              </p>
-            </div>
-          ))}
-        </div>
-      ) : detail.stageStatus !== "published" ? (
-        <DataPanelError
-          title="Stage not open"
           message={
-            detail.stageStatus === "draft"
-              ? BidderRaStagesStatusMessages.STAGE_NOT_YET_OPEN
-              : BidderRaStagesStatusMessages.STAGE_CLOSED
+            query.error instanceof Error
+              ? query.error.message
+              : "Please try again."
           }
+          onRetry={() => void query.refetch()}
         />
       ) : (
         <div className="space-y-6">
-          {detail.questions.map((q, i) => (
-            <div key={q.id} className="space-y-2">
-              <div className="flex flex-wrap items-center gap-2">
-                <span className="text-muted-foreground text-sm font-medium">{i + 1}.</span>
-                <p className="text-sm font-medium">{q.question}</p>
-                <Badge color="blue">{ANSWER_TYPE_LABEL[q.answerType]}</Badge>
-                {q.required ? <Badge color="yellow">Required</Badge> : null}
-              </div>
-              <div className="pl-5">
-                <QuestionAnswerField
-                  question={q}
-                  value={answers[q.id]}
-                  onChange={(value) => setAnswers((prev) => ({ ...prev, [q.id]: value }))}
-                  file={files[q.id] ?? null}
-                  onFileChange={(file) => setFiles((prev) => ({ ...prev, [q.id]: file }))}
-                  disabled={isBusy}
-                />
+          {/* Information card */}
+          <div className="space-y-3">
+            <h3 className="text-lg font-semibold">Stage Details</h3>
+            <div className="border-border bg-muted/50 rounded-lg border p-4">
+              <div className="grid grid-cols-2 gap-x-6 gap-y-3">
+                <div>
+                  <p className="text-muted-foreground text-xs">Client</p>
+                  <div className="flex items-center gap-2 text-sm">
+                    <span className="font-medium">
+                      {detail.clientName ?? "—"}
+                    </span>
+                    <Badge color="grey">
+                      <span className="font-bold">#{detail.clientId}</span>
+                    </Badge>
+                  </div>
+                </div>
+                <div>
+                  <p className="text-muted-foreground text-xs">
+                    Auction Number
+                  </p>
+                  <Button
+                    variant="link"
+                    className="h-auto p-0 text-sm"
+                    to={`/auctions/${auctionId}`}
+                  >
+                    {detail.auctionNumber ?? "—"}
+                  </Button>
+                </div>
+                <div>
+                  <p className="text-muted-foreground text-xs">Starts At</p>
+                  <p className="text-sm">
+                    {formatDateTime(detail.startsAt) ?? "—"}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-muted-foreground text-xs">Ends At</p>
+                  <p className="text-sm">
+                    {formatDateTime(detail.endsAt) ?? "—"}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-muted-foreground text-xs">
+                    Response Status
+                  </p>
+                  <div className="mt-0.5">
+                    <Badge>
+                      {RESPONSE_STATUS_LABEL[detail.responseStatus]}
+                    </Badge>
+                  </div>
+                </div>
+                {detail.responseStatus === "submitted" ? (
+                  <div>
+                    <p className="text-muted-foreground text-xs">
+                      Review Status
+                    </p>
+                    <div className="mt-0.5">
+                      {detail.isShortlisted === true ? (
+                        <Badge>
+                          {BidderRaStagesStatusMessages.SHORTLISTED}
+                        </Badge>
+                      ) : detail.isShortlisted === false ? (
+                        <Badge>{BidderRaStagesStatusMessages.REJECTED}</Badge>
+                      ) : (
+                        <Badge>
+                          {BidderRaStagesStatusMessages.UNDER_REVIEW}
+                        </Badge>
+                      )}
+                    </div>
+                  </div>
+                ) : null}
               </div>
             </div>
-          ))}
+          </div>
+
+          {/* Questions */}
+          <div className="space-y-3">
+            {detail.responseStatus === "submitted" ? (
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold">Questions</h3>
+                {detail.questions.map((q, i) => (
+                  <div key={q.id} className="space-y-1">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="text-muted-foreground text-sm font-medium">
+                        {i + 1}.
+                      </span>
+                      <p className="text-sm font-medium">{q.question}</p>
+                      <Badge color="blue">
+                        {ANSWER_TYPE_LABEL[q.answerType]}
+                      </Badge>
+                      {q.required ? (
+                        <Badge color="yellow">Required</Badge>
+                      ) : null}
+                    </div>
+                    <p className="text-muted-foreground pl-5 text-sm">
+                      {Array.isArray(detail.answers[q.id])
+                        ? (detail.answers[q.id] as string[]).join(", ")
+                        : ((detail.answers[q.id] as string | null) ?? "—")}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            ) : detail.stageStatus !== "published" ? (
+              <DataPanelError
+                title="Stage not open"
+                message={
+                  detail.stageStatus === "draft"
+                    ? BidderRaStagesStatusMessages.STAGE_NOT_YET_OPEN
+                    : BidderRaStagesStatusMessages.STAGE_CLOSED
+                }
+              />
+            ) : (
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold">Questions</h3>
+                {detail.questions.map((q, i) => (
+                  <div key={q.id} className="space-y-2">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="text-muted-foreground text-sm font-medium">
+                        {i + 1}.
+                      </span>
+                      <p className="text-sm font-medium">{q.question}</p>
+                      <Badge color="blue">
+                        {ANSWER_TYPE_LABEL[q.answerType]}
+                      </Badge>
+                      {q.required ? (
+                        <Badge color="yellow">Required</Badge>
+                      ) : null}
+                    </div>
+                    <div className="pl-5">
+                      <QuestionAnswerField
+                        question={q}
+                        value={answers[q.id]}
+                        onChange={(value) =>
+                          setAnswers((prev) => ({ ...prev, [q.id]: value }))
+                        }
+                        file={files[q.id] ?? null}
+                        onFileChange={(file) =>
+                          setFiles((prev) => ({ ...prev, [q.id]: file }))
+                        }
+                        disabled={isBusy}
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
       )}
     </div>

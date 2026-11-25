@@ -440,7 +440,7 @@ export function App() {
               }
             />
             <Route
-              path="auctions/:auctionId/ra-stages/:stageKey"
+              path="auctions/ra-stages/:stageKey"
               element={
                 <PortalPermission permission="module.portal-bidder-auctions">
                   <RaStageResponsePageBidder />

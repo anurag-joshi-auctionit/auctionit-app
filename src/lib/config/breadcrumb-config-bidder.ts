@@ -51,14 +51,12 @@ export function getBidderBreadcrumbConfig(
     ];
   }
 
-  const raStageMatch = /^\/auctions\/(\d+)\/ra-stages\/([^/]+)$/.exec(pathname);
+  const raStageMatch = /^\/auctions\/ra-stages\/([^/]+)$/.exec(pathname);
   if (raStageMatch) {
-    const auctionId = raStageMatch[1];
-    const stageKey = raStageMatch[2];
+    const stageKey = raStageMatch[1];
     return [
       { label: "Auctions", href: "/auctions/today" },
-      { label: auctionId, href: `/auctions/${auctionId}` },
-      { label: "RA Stages", href: `/auctions/ra-stages` },
+      { label: "RA Stages", href: "/auctions/ra-stages" },
       { label: RA_STAGE_LABELS[stageKey] ?? stageKey.toUpperCase(), href: pathname },
     ];
   }

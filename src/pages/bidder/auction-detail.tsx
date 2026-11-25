@@ -2,7 +2,7 @@ import { useAuth } from "@auctionit/lib";
 import { BidderAccountMessages } from "@auctionit/messages/emd";
 import { Badge, Button, Card, CardContent, DataPanelError, Skeleton } from "@auctionit/ui";
 import { useQuery } from "@tanstack/react-query";
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { AuctionDetailHeader } from "@/components/auctions/auction-detail-header";
 import {
   AssignedLotsTable,
@@ -34,6 +34,7 @@ type AuctionDetail =
   | { view: "participated"; auction: AuctionHeader; lots: ParticipatedLot[] };
 
 function RaStageInvitationsSection({ auctionId }: { auctionId: number }) {
+  const navigate = useNavigate();
   const query = useMyRaStageInvitationsQuery(auctionId);
   const invitations = query.data ?? [];
   if (invitations.length === 0) return null;
@@ -56,10 +57,16 @@ function RaStageInvitationsSection({ auctionId }: { auctionId: number }) {
               >
                 {RA_STAGE_LABELS[inv.stageKey]} — {inv.status === "submitted" ? "Submitted" : "Pending"}
               </Badge>
-              <Button asChild variant="outline" size="sm">
-                <Link to={`/ra-stages/${auctionId}/${inv.stageKey}`}>
-                  {inv.status === "submitted" ? "View" : "Respond"}
-                </Link>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() =>
+                  navigate(`/auctions/ra-stages/${inv.stageKey}`, {
+                    state: { auctionId },
+                  })
+                }
+              >
+                {inv.status === "submitted" ? "View" : "Respond"}
               </Button>
             </div>
           ))}

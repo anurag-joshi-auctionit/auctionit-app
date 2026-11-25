@@ -38,6 +38,9 @@ export type RaStageQuestion = {
 export type MyRaStageDetail = {
   stageKey: RaStageKey;
   stageStatus: RaStageStatus;
+  auctionNumber: string | null;
+  clientId: number;
+  clientName: string | null;
   startsAt: string | null;
   endsAt: string | null;
   responseStatus: RaStageResponseStatus;
