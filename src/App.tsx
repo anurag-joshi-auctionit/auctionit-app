@@ -118,6 +118,16 @@ const TodaysAuctionsPageBidder = lazy(() =>
     default: m.TodaysAuctionsPageBidder,
   })),
 );
+const SealedBidsPageBidder = lazy(() =>
+  import("@/pages/auctions/sealed-bids-bidder").then((m) => ({
+    default: m.SealedBidsPageBidder,
+  })),
+);
+const RaStagesPageBidder = lazy(() =>
+  import("@/pages/auctions/ra-stages-bidder").then((m) => ({
+    default: m.RaStagesPageBidder,
+  })),
+);
 const BankAccountPage = lazy(() =>
   import("@/pages/bank-account").then((m) => ({ default: m.BankAccountPage })),
 );
@@ -351,6 +361,22 @@ export function App() {
               }
             />
             <Route
+              path="auctions/sealed-bids"
+              element={
+                <PortalPermission permission="module.portal-bidder-live">
+                  <SealedBidsPageBidder />
+                </PortalPermission>
+              }
+            />
+            <Route
+              path="auctions/ra-stages"
+              element={
+                <PortalPermission permission="module.portal-bidder-auctions">
+                  <RaStagesPageBidder />
+                </PortalPermission>
+              }
+            />
+            <Route
               path="auctions/future"
               element={
                 <PortalAuctionListRoute
@@ -414,7 +440,7 @@ export function App() {
               }
             />
             <Route
-              path="ra-stages/:auctionId/:stageKey"
+              path="auctions/:auctionId/ra-stages/:stageKey"
               element={
                 <PortalPermission permission="module.portal-bidder-auctions">
                   <RaStageResponsePageBidder />

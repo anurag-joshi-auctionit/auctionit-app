@@ -29,6 +29,9 @@ import {
   SubscriptionSection,
   SubscriptionSuspense,
 } from "@/components/bidder-dashboard/subscription-section";
+import { RaStageWindowsBidder } from "@/components/auctions/ra-stage-windows-bidder";
+import { SealedBidWindowsBidder } from "@/components/auctions/sealed-bid-windows-bidder";
+import { useRaStageWindows } from "@/hooks/use-ra-stage-windows";
 import { TodaysAuctionsSection } from "@/components/bidder-dashboard/todays-auctions-section";
 import { DashboardSectionBoundary } from "@/components/dashboard/section-boundary";
 import { DashboardSectionHeader } from "@/components/dashboard/section-header";
@@ -45,6 +48,22 @@ function positiveIntOrNull(raw: string): number | null {
   if (!raw || isSelectSearchClear(raw)) return null;
   const n = Number(raw);
   return Number.isInteger(n) && n > 0 ? n : null;
+}
+
+function DashboardRaStages() {
+  const { data = [] } = useRaStageWindows();
+  if (data.length === 0) return null;
+  return (
+    <div className="space-y-2">
+      <div>
+        <h2 className="text-sm font-medium">Reverse Auction Stages</h2>
+        <p className="text-muted-foreground text-xs">
+          Complete questionnaires for each stage within the open window.
+        </p>
+      </div>
+      <RaStageWindowsBidder data={data} />
+    </div>
+  );
 }
 
 export function DashboardPage() {
@@ -132,6 +151,11 @@ export function DashboardPage() {
       </div>
 
       <div className="space-y-12 p-4">
+        <div className="space-y-6">
+          <SealedBidWindowsBidder />
+          <DashboardRaStages />
+        </div>
+
         <section aria-labelledby="todays-auctions">
           <TodaysAuctionsSection />
         </section>

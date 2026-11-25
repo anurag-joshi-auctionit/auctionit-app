@@ -31,6 +31,16 @@ export const bidderNavigationConfig: NavigationConfig = {
           permission: "module.portal-bidder-live",
         },
         {
+          name: "Sealed-bid Auctions",
+          href: "/auctions/sealed-bids",
+          permission: "module.portal-bidder-live",
+        },
+        {
+          name: "Reverse Auction Stages",
+          href: "/auctions/ra-stages",
+          permission: "module.portal-bidder-auctions",
+        },
+        {
           name: "Future Auctions",
           href: "/auctions/future",
           permission: "module.portal-bidder-auctions",

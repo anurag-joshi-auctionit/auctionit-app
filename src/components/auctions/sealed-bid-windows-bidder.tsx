@@ -18,16 +18,17 @@ export function SealedBidWindowsBidder() {
   if (!data || data.length === 0) return null;
 
   return (
-    <Card>
-      <CardContent className="space-y-3">
-        <div>
-          <h2 className="text-sm font-medium">Sealed-bid Windows</h2>
-          <p className="text-muted-foreground text-xs">
-            Submit sealed-bids before the window closes. Only your own bid is
-            shown.
-          </p>
-        </div>
-        <ul className="divide-border divide-y">
+    <div className="space-y-2">
+      <div>
+        <h2 className="text-sm font-medium">Sealed-bid Windows</h2>
+        <p className="text-muted-foreground text-xs">
+          Submit sealed-bids before the window closes. Only your own bid is
+          shown.
+        </p>
+      </div>
+      <Card>
+        <CardContent>
+          <ul className="divide-border divide-y">
           {data.map((a) => (
             <li
               key={a.id}
@@ -50,8 +51,9 @@ export function SealedBidWindowsBidder() {
               </Button>
             </li>
           ))}
-        </ul>
-      </CardContent>
-    </Card>
+          </ul>
+        </CardContent>
+      </Card>
+    </div>
   );
 }

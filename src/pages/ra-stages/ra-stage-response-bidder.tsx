@@ -2,27 +2,74 @@ import {
   BidderRaStagesStatusMessages,
   BidderRaStagesValidationMessages,
 } from "@auctionit/messages/bidder-ra-stages";
+import type React from "react";
 import {
   Badge,
   Button,
-  Card,
-  CardContent,
   DataPanelError,
   PageHeader,
   Skeleton,
+  formatDateTime,
   toast,
 } from "@auctionit/ui";
 import { useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { QuestionAnswerField } from "@/components/ra-stages/question-answer-field";
 import { useMyRaStageQuery, useSubmitRaStageResponseMutation } from "@/lib/ra-stages/queries";
-import { RA_STAGE_LABELS, type RaStageAnswerDraft, type RaStageKey } from "@/lib/ra-stages/types";
+import {
+  RA_STAGE_LABELS,
+  type MyRaStageDetail,
+  type RaStageAnswerDraft,
+  type RaStageAnswerType,
+  type RaStageKey,
+} from "@/lib/ra-stages/types";
 
 const STAGE_KEYS: RaStageKey[] = ["rfi", "rfp", "rfq"];
 
+const ANSWER_TYPE_LABEL: Record<RaStageAnswerType, string> = {
+  short_text: "Single Line Text",
+  long_text: "Multi Line Text",
+  number: "Number",
+  date: "Date",
+  single_choice: "Single Choice",
+  multiple_choice: "Multiple Choice",
+  file_upload: "File Upload",
+};
+
+function StageDescription({ detail }: { detail: MyRaStageDetail }) {
+  const { stageStatus, startsAt, endsAt, responseStatus, isShortlisted } = detail;
+
+  const windowParts: string[] = [];
+  if (stageStatus === "closed") {
+    if (endsAt) windowParts.push(`Ended ${formatDateTime(endsAt) ?? ""}`);
+  } else {
+    if (startsAt) windowParts.push(`Starts At: ${formatDateTime(startsAt) ?? startsAt}`);
+    if (endsAt) windowParts.push(`Ends At: ${formatDateTime(endsAt) ?? endsAt}`);
+  }
+
+  let statusBadge: React.ReactNode = null;
+  if (responseStatus === "submitted") {
+    if (isShortlisted === true) {
+      statusBadge = <Badge>{BidderRaStagesStatusMessages.SHORTLISTED}</Badge>;
+    } else if (isShortlisted === false) {
+      statusBadge = <Badge>{BidderRaStagesStatusMessages.REJECTED}</Badge>;
+    } else {
+      statusBadge = <Badge>{BidderRaStagesStatusMessages.UNDER_REVIEW}</Badge>;
+    }
+  }
+
+  return (
+    <div className="flex flex-wrap items-center gap-2">
+      {windowParts.length > 0 ? (
+        <span>{windowParts.join(" | ")}</span>
+      ) : null}
+      {statusBadge}
+    </div>
+  );
+}
+
 export function RaStageResponsePageBidder() {
   const { auctionId: auctionIdParam, stageKey: stageKeyParam } = useParams();
-  const navigate = useNavigate();
 
   const auctionId = Number(auctionIdParam);
   const validAuctionId = Number.isInteger(auctionId) && auctionId > 0;
@@ -56,6 +103,8 @@ export function RaStageResponsePageBidder() {
     );
   }
 
+  const stageLabel = RA_STAGE_LABELS[stageKey];
+
   const handleSubmit = () => {
     if (!detail) return;
     for (const q of detail.questions) {
@@ -88,8 +137,8 @@ export function RaStageResponsePageBidder() {
   return (
     <div className="space-y-6 p-4">
       <PageHeader
-        title={`${RA_STAGE_LABELS[stageKey]} — Due Diligence`}
-        description="Answer the questions below and submit your response."
+        title={stageLabel}
+        description={detail ? <StageDescription detail={detail} /> : "Loading stage details…"}
       />
 
       {query.isLoading ? (
@@ -101,35 +150,26 @@ export function RaStageResponsePageBidder() {
           onRetry={() => void query.refetch()}
         />
       ) : detail.responseStatus === "submitted" ? (
-        <Card>
-          <CardContent className="space-y-3 p-6">
-            <Badge variant={detail.isShortlisted ? "success" : detail.isShortlisted === false ? "destructive" : "secondary"}>
-              {detail.isShortlisted === true
-                ? BidderRaStagesStatusMessages.SHORTLISTED
-                : detail.isShortlisted === false
-                  ? BidderRaStagesStatusMessages.NOT_SHORTLISTED
-                  : BidderRaStagesStatusMessages.AWAITING_REVIEW}
-            </Badge>
-            {detail.isShortlisted === false && detail.rejectionReason ? (
-              <p className="text-muted-foreground text-sm">{detail.rejectionReason}</p>
-            ) : null}
-            <div className="space-y-4 pt-4">
-              {detail.questions.map((q) => (
-                <div key={q.id} className="space-y-1">
-                  <p className="text-sm font-medium">{q.question}</p>
-                  <p className="text-muted-foreground text-sm">
-                    {Array.isArray(detail.answers[q.id])
-                      ? (detail.answers[q.id] as string[]).join(", ")
-                      : (detail.answers[q.id] as string | null) ?? "—"}
-                  </p>
-                </div>
-              ))}
+        <div className="space-y-4">
+          {detail.isShortlisted === false && detail.rejectionReason ? (
+            <p className="text-muted-foreground text-sm">{detail.rejectionReason}</p>
+          ) : null}
+          {detail.questions.map((q, i) => (
+            <div key={q.id} className="space-y-1">
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="text-muted-foreground text-sm font-medium">{i + 1}.</span>
+                <p className="text-sm font-medium">{q.question}</p>
+                <Badge color="blue">{ANSWER_TYPE_LABEL[q.answerType]}</Badge>
+                {q.required ? <Badge color="yellow">Required</Badge> : null}
+              </div>
+              <p className="text-muted-foreground pl-5 text-sm">
+                {Array.isArray(detail.answers[q.id])
+                  ? (detail.answers[q.id] as string[]).join(", ")
+                  : (detail.answers[q.id] as string | null) ?? "—"}
+              </p>
             </div>
-            <Button variant="outline" onClick={() => navigate(-1)}>
-              Back
-            </Button>
-          </CardContent>
-        </Card>
+          ))}
+        </div>
       ) : detail.stageStatus !== "published" ? (
         <DataPanelError
           title="Stage not open"
@@ -140,14 +180,16 @@ export function RaStageResponsePageBidder() {
           }
         />
       ) : (
-        <Card>
-          <CardContent className="space-y-6 p-6">
-            {detail.questions.map((q) => (
-              <div key={q.id} className="space-y-2">
-                <p className="text-sm font-medium">
-                  {q.question}
-                  {q.required ? <span className="text-destructive ml-1">*</span> : null}
-                </p>
+        <div className="space-y-6">
+          {detail.questions.map((q, i) => (
+            <div key={q.id} className="space-y-2">
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="text-muted-foreground text-sm font-medium">{i + 1}.</span>
+                <p className="text-sm font-medium">{q.question}</p>
+                <Badge color="blue">{ANSWER_TYPE_LABEL[q.answerType]}</Badge>
+                {q.required ? <Badge color="yellow">Required</Badge> : null}
+              </div>
+              <div className="pl-5">
                 <QuestionAnswerField
                   question={q}
                   value={answers[q.id]}
@@ -157,12 +199,12 @@ export function RaStageResponsePageBidder() {
                   disabled={mutation.isPending}
                 />
               </div>
-            ))}
-            <Button onClick={handleSubmit} disabled={mutation.isPending}>
-              Submit Response
-            </Button>
-          </CardContent>
-        </Card>
+            </div>
+          ))}
+          <Button onClick={handleSubmit} disabled={mutation.isPending}>
+            Submit Response
+          </Button>
+        </div>
       )}
     </div>
   );

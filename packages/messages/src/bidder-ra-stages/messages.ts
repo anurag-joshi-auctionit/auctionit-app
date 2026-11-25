@@ -16,9 +16,9 @@ export const BidderRaStagesSuccessMessages = {
 } as const;
 
 export const BidderRaStagesStatusMessages = {
-  AWAITING_REVIEW: "Submitted — awaiting review",
+  UNDER_REVIEW: "Under Review",
   SHORTLISTED: "Shortlisted",
-  NOT_SHORTLISTED: "Not shortlisted",
+  REJECTED: "Rejected",
   STAGE_NOT_YET_OPEN: "This stage has not opened yet.",
   STAGE_CLOSED: "This stage is closed.",
 } as const;

@@ -11,7 +11,6 @@ import {
   LiveLotsPanelBidder,
   type LiveLotsPanelBidderStatus,
 } from "@/components/auctions/live-lots-panel-bidder";
-import { SealedBidWindowsBidder } from "@/components/auctions/sealed-bid-windows-bidder";
 import { formatAgo } from "@/lib/live-auction-url";
 import { TickProvider, useSharedSecondTick } from "@/lib/use-live-auction";
 
@@ -94,7 +93,6 @@ export function LiveAuctionsPageBidder() {
     <TickProvider>
       <div className="space-y-6 p-4">
         <LiveAuctionsHeader status={status} />
-        <SealedBidWindowsBidder />
         <LiveLotsPanelBidder onStatusChange={onStatusChange} />
       </div>
     </TickProvider>
