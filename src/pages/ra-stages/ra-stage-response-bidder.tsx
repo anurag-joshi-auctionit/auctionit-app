@@ -128,6 +128,7 @@ function RfqLotsTable({
         data={lots}
         getRowId={(row) => String(row.lotId)}
         showPagination
+        showColumnToggle={false}
       />
     </div>
   );
