@@ -69,22 +69,26 @@ function RfqLotsTable({
         header: "Lot No.",
         cell: ({ row }) => <span className="font-medium">{row.original.lotNumber ?? `#${row.original.lotId}`}</span>,
         enableSorting: false,
+        enableHiding: false,
       },
       {
         accessorKey: "quantity",
         header: "Quantity",
+        meta: { label: "Quantity" },
         cell: ({ row }) => row.original.quantity ?? "—",
         enableSorting: false,
       },
       {
         accessorKey: "uom",
         header: "UOM",
+        meta: { label: "UOM" },
         cell: ({ row }) => row.original.uom ?? "—",
         enableSorting: false,
       },
       {
         id: "quote",
         header: "Your Quote (₹)",
+        enableHiding: false,
         cell: ({ row }) => {
           const lot = row.original;
           if (isSubmitted) {
