@@ -4,6 +4,7 @@ import {
   Badge,
   Button,
   DataPanelError,
+  HelpText,
   InputCurrency,
   ListDataTable,
   PageHeader,
@@ -96,7 +97,12 @@ function RfqLotsTable({
       },
       {
         id: "quote",
-        header: "Your Quote (₹)",
+        header: () => (
+          <div className="inline-flex items-center gap-1">
+            <span>Your Quote (₹)</span>
+            <HelpText message="Your quote must be ≤ the Max. Price for each lot." />
+          </div>
+        ),
         enableHiding: false,
         cell: ({ row }) => {
           const lot = row.original;
