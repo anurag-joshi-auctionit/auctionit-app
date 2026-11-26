@@ -5,13 +5,15 @@ import {
   Button,
   DataPanelError,
   InputCurrency,
+  ListDataTable,
   PageHeader,
   Skeleton,
   formatDateTime,
   toast,
+  type ColumnDef,
 } from "@auctionit/ui";
 import { Edit05, Loading01, Save01 } from "@untitledui/icons";
-import { useState } from "react";
+import React, { useMemo, useState } from "react";
 import { useLocation, useParams } from "react-router-dom";
 import { QuestionAnswerField } from "@/components/ra-stages/question-answer-field";
 import {
@@ -24,6 +26,7 @@ import {
   type RaStageAnswerDraft,
   type RaStageAnswerType,
   type RaStageKey,
+  type RfqLot,
 } from "@/lib/ra-stages/types";
 
 const STAGE_KEYS: RaStageKey[] = ["rfi", "rfp", "rfq"];
@@ -43,6 +46,88 @@ const ANSWER_TYPE_LABEL: Record<RaStageAnswerType, string> = {
   multiple_choice: "Multiple Choice",
   file_upload: "File Upload",
 };
+
+function RfqLotsTable({
+  lots,
+  isSubmitted,
+  stageOpen,
+  isBusy,
+  lotQuotes,
+  setLotQuotes,
+}: {
+  lots: RfqLot[];
+  isSubmitted: boolean;
+  stageOpen: boolean;
+  isBusy: boolean;
+  lotQuotes: Record<number, string>;
+  setLotQuotes: React.Dispatch<React.SetStateAction<Record<number, string>>>;
+}) {
+  const columns = useMemo<ColumnDef<RfqLot>[]>(
+    () => [
+      {
+        accessorKey: "lotNumber",
+        header: "Lot No.",
+        cell: ({ row }) => <span className="font-medium">{row.original.lotNumber ?? `#${row.original.lotId}`}</span>,
+        enableSorting: false,
+      },
+      {
+        accessorKey: "quantity",
+        header: "Quantity",
+        cell: ({ row }) => row.original.quantity ?? "—",
+        enableSorting: false,
+      },
+      {
+        accessorKey: "uom",
+        header: "UOM",
+        cell: ({ row }) => row.original.uom ?? "—",
+        enableSorting: false,
+      },
+      {
+        id: "quote",
+        header: "Your Quote (₹)",
+        cell: ({ row }) => {
+          const lot = row.original;
+          if (isSubmitted) {
+            return (
+              <span className="font-medium tabular-nums">
+                {lot.quotedAmount ? `₹ ${lot.quotedAmount}` : "—"}
+              </span>
+            );
+          }
+          return (
+            <InputCurrency
+              allowEmptyAsZero={false}
+              value={lotQuotes[lot.lotId] != null ? Number(lotQuotes[lot.lotId]) : null}
+              onChange={(val) =>
+                setLotQuotes((prev) => ({
+                  ...prev,
+                  [lot.lotId]: val != null ? String(val) : "",
+                }))
+              }
+              disabled={isBusy || !stageOpen}
+              className="h-8 max-w-xs tabular-nums"
+              autoComplete="off"
+            />
+          );
+        },
+        enableSorting: false,
+      },
+    ],
+    [isSubmitted, stageOpen, isBusy, lotQuotes, setLotQuotes],
+  );
+
+  return (
+    <div className="space-y-3">
+      <h3 className="text-lg font-semibold">Lot-wise Quotations</h3>
+      <ListDataTable
+        columns={columns}
+        data={lots}
+        getRowId={(row) => String(row.lotId)}
+        showPagination
+      />
+    </div>
+  );
+}
 
 export function RaStageResponsePageBidder() {
   const { stageKey: stageKeyParam } = useParams();
@@ -250,51 +335,14 @@ export function RaStageResponsePageBidder() {
 
           {/* Lot quotes (RFQ) */}
           {detail.lots.length > 0 ? (
-            <div className="space-y-3">
-              <h3 className="text-lg font-semibold">Lot-wise Quotations</h3>
-              <div className="border-border overflow-hidden rounded-lg border">
-                <table className="w-full text-sm">
-                  <thead className="bg-muted/50">
-                    <tr>
-                      <th className="text-muted-foreground px-4 py-2.5 text-left font-medium">Lot No.</th>
-                      <th className="text-muted-foreground px-4 py-2.5 text-left font-medium">Quantity</th>
-                      <th className="text-muted-foreground px-4 py-2.5 text-left font-medium">UOM</th>
-                      <th className="text-muted-foreground px-4 py-2.5 text-left font-medium">Your Quote (₹)</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-border divide-y">
-                    {detail.lots.map((lot) => (
-                      <tr key={lot.lotId}>
-                        <td className="px-4 py-3 font-medium">{lot.lotNumber ?? `#${lot.lotId}`}</td>
-                        <td className="text-muted-foreground px-4 py-3">{lot.quantity ?? "—"}</td>
-                        <td className="text-muted-foreground px-4 py-3">{lot.uom ?? "—"}</td>
-                        <td className="px-4 py-3">
-                          {detail.responseStatus === "submitted" ? (
-                            <span className="font-medium tabular-nums">
-                              {lot.quotedAmount ? `₹ ${lot.quotedAmount}` : "—"}
-                            </span>
-                          ) : (
-                            <InputCurrency
-                              allowEmptyAsZero={false}
-                              value={lotQuotes[lot.lotId] != null ? Number(lotQuotes[lot.lotId]) : null}
-                              onChange={(val) =>
-                                setLotQuotes((prev) => ({
-                                  ...prev,
-                                  [lot.lotId]: val != null ? String(val) : "",
-                                }))
-                              }
-                              disabled={isBusy || detail.stageStatus !== "published"}
-                              className="h-8 max-w-40 tabular-nums"
-                              autoComplete="off"
-                            />
-                          )}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
+            <RfqLotsTable
+              lots={detail.lots}
+              isSubmitted={detail.responseStatus === "submitted"}
+              stageOpen={detail.stageStatus === "published"}
+              isBusy={isBusy}
+              lotQuotes={lotQuotes}
+              setLotQuotes={setLotQuotes}
+            />
           ) : null}
 
           {/* Questions */}
