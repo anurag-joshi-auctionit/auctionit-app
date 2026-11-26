@@ -2,6 +2,16 @@ import { Checkbox, DatePicker, Input, Textarea } from "@auctionit/ui";
 import { RadioGroup, RadioGroupItem } from "@auctionit/ui/components/ui/radio-group";
 import type { RaStageQuestion } from "@/lib/ra-stages/types";
 
+const FILE_TYPE_LABEL: Record<string, string> = {
+  pdf: "PDF",
+  word: "Word",
+  excel_csv: "Excel / CSV",
+  images: "Images",
+  video: "Video",
+  zip: "ZIP",
+  text: "Text",
+};
+
 const ACCEPT_BY_FILE_TYPE: Record<string, string> = {
   pdf: ".pdf",
   word: ".doc,.docx",
@@ -15,6 +25,18 @@ const ACCEPT_BY_FILE_TYPE: Record<string, string> = {
 function fileAccept(allowedFileTypes: string[]): string | undefined {
   if (allowedFileTypes.length === 0) return undefined;
   return allowedFileTypes.map((t) => ACCEPT_BY_FILE_TYPE[t] ?? "").filter(Boolean).join(",");
+}
+
+function fileHelpText(question: RaStageQuestion): string | null {
+  if (question.answerType !== "file_upload") return null;
+  const { allowedFileTypes, maxFileSizeMb } = question.fileUpload;
+  const parts: string[] = [];
+  if (allowedFileTypes.length > 0) {
+    const labels = allowedFileTypes.map((t) => FILE_TYPE_LABEL[t] ?? t);
+    parts.push(`Accepted: ${labels.join(", ")}`);
+  }
+  if (maxFileSizeMb) parts.push(`Max ${maxFileSizeMb} MB`);
+  return parts.length > 0 ? parts.join(" · ") : null;
 }
 
 type Props = {
@@ -34,6 +56,7 @@ export function QuestionAnswerField({
   onFileChange,
   disabled,
 }: Props) {
+
   switch (question.answerType) {
     case "short_text":
       return (
@@ -68,11 +91,13 @@ export function QuestionAnswerField({
 
     case "date":
       return (
-        <DatePicker
-          value={(value as string) ?? ""}
-          onChange={onChange}
-          disabled={disabled}
-        />
+        <div className="max-w-xs">
+          <DatePicker
+            value={(value as string) ?? ""}
+            onChange={onChange}
+            disabled={disabled}
+          />
+        </div>
       );
 
     case "single_choice":
@@ -117,19 +142,22 @@ export function QuestionAnswerField({
       );
     }
 
-    case "file_upload":
+    case "file_upload": {
+      const helpText = fileHelpText(question);
       return (
-        <div className="space-y-1">
-          <input
+        <div className="space-y-1.5">
+          <Input
             type="file"
             disabled={disabled}
             accept={fileAccept(question.fileUpload.allowedFileTypes)}
             onChange={(e) => onFileChange(e.target.files?.[0] ?? null)}
-            className="text-sm"
           />
-          {file ? <p className="text-muted-foreground text-xs">{file.name}</p> : null}
+          {helpText ? (
+            <p className="text-muted-foreground text-xs">{helpText}</p>
+          ) : null}
         </div>
       );
+    }
 
     default:
       return null;

@@ -109,7 +109,10 @@ export function RaStageResponsePageBidder() {
           void query.refetch();
         },
         onError: (err) => {
-          const body = err instanceof ApiError ? (err.body as { error?: string } | null) : null;
+          const body =
+            err instanceof ApiError
+              ? (err.body as { error?: string } | null)
+              : null;
           toast.error(body?.error ?? "Failed to submit response.");
         },
       },
@@ -230,7 +233,7 @@ export function RaStageResponsePageBidder() {
               <div className="space-y-4">
                 <h3 className="text-lg font-semibold">Questions</h3>
                 {detail.questions.map((q, i) => (
-                  <div key={q.id} className="space-y-1">
+                  <div key={q.id} className="space-y-1 mb-6">
                     <div className="flex flex-wrap items-center gap-2">
                       <span className="text-muted-foreground text-sm font-medium">
                         {i + 1}.
