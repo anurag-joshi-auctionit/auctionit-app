@@ -6,6 +6,12 @@ export const RA_STAGE_LABELS: Record<RaStageKey, string> = {
   rfq: "RFQ",
 };
 
+export const RA_STAGE_FULL_LABELS: Record<RaStageKey, string> = {
+  rfi: "Request for Information (RFI)",
+  rfp: "Request for Proposal (RFP)",
+  rfq: "Request for Quotation (RFQ)",
+};
+
 export type RaStageResponseStatus = "invited" | "draft" | "submitted";
 export type RaStageStatus = "draft" | "published" | "closed";
 
