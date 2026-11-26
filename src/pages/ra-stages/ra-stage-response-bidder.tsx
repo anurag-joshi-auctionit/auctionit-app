@@ -4,7 +4,7 @@ import {
   Badge,
   Button,
   DataPanelError,
-  Input,
+  InputCurrency,
   PageHeader,
   Skeleton,
   formatDateTime,
@@ -251,14 +251,14 @@ export function RaStageResponsePageBidder() {
           {/* Lot quotes (RFQ) */}
           {detail.lots.length > 0 ? (
             <div className="space-y-3">
-              <h3 className="text-lg font-semibold">Quote by Lot</h3>
+              <h3 className="text-lg font-semibold">Lot-wise Quotations</h3>
               <div className="border-border overflow-hidden rounded-lg border">
                 <table className="w-full text-sm">
                   <thead className="bg-muted/50">
                     <tr>
-                      <th className="text-muted-foreground px-4 py-2.5 text-left font-medium">Lot #</th>
-                      <th className="text-muted-foreground px-4 py-2.5 text-left font-medium">Material</th>
-                      <th className="text-muted-foreground px-4 py-2.5 text-left font-medium">Qty</th>
+                      <th className="text-muted-foreground px-4 py-2.5 text-left font-medium">Lot No.</th>
+                      <th className="text-muted-foreground px-4 py-2.5 text-left font-medium">Quantity</th>
+                      <th className="text-muted-foreground px-4 py-2.5 text-left font-medium">UOM</th>
                       <th className="text-muted-foreground px-4 py-2.5 text-left font-medium">Your Quote (₹)</th>
                     </tr>
                   </thead>
@@ -266,27 +266,26 @@ export function RaStageResponsePageBidder() {
                     {detail.lots.map((lot) => (
                       <tr key={lot.lotId}>
                         <td className="px-4 py-3 font-medium">{lot.lotNumber ?? `#${lot.lotId}`}</td>
-                        <td className="text-muted-foreground px-4 py-3">{lot.materialName ?? "—"}</td>
-                        <td className="text-muted-foreground px-4 py-3 whitespace-nowrap">
-                          {lot.quantity ? `${lot.quantity}${lot.uom ? ` ${lot.uom}` : ""}` : "—"}
-                        </td>
+                        <td className="text-muted-foreground px-4 py-3">{lot.quantity ?? "—"}</td>
+                        <td className="text-muted-foreground px-4 py-3">{lot.uom ?? "—"}</td>
                         <td className="px-4 py-3">
                           {detail.responseStatus === "submitted" ? (
-                            <span className="font-medium">
+                            <span className="font-medium tabular-nums">
                               {lot.quotedAmount ? `₹ ${lot.quotedAmount}` : "—"}
                             </span>
                           ) : (
-                            <Input
-                              type="number"
-                              min={0}
-                              step="0.01"
-                              className="max-w-40"
-                              value={lotQuotes[lot.lotId] ?? ""}
-                              onChange={(e) =>
-                                setLotQuotes((prev) => ({ ...prev, [lot.lotId]: e.target.value }))
+                            <InputCurrency
+                              allowEmptyAsZero={false}
+                              value={lotQuotes[lot.lotId] != null ? Number(lotQuotes[lot.lotId]) : null}
+                              onChange={(val) =>
+                                setLotQuotes((prev) => ({
+                                  ...prev,
+                                  [lot.lotId]: val != null ? String(val) : "",
+                                }))
                               }
                               disabled={isBusy || detail.stageStatus !== "published"}
-                              placeholder="0.00"
+                              className="h-8 max-w-40 tabular-nums"
+                              autoComplete="off"
                             />
                           )}
                         </td>
