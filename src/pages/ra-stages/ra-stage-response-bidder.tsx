@@ -69,7 +69,11 @@ function RfqLotsTable({
       {
         accessorKey: "lotNumber",
         header: "Lot No.",
-        cell: ({ row }) => <span className="font-medium">{row.original.lotNumber ?? `#${row.original.lotId}`}</span>,
+        cell: ({ row }) => (
+          <span className="font-medium">
+            {row.original.lotNumber ?? `#${row.original.lotId}`}
+          </span>
+        ),
         enableSorting: false,
         enableHiding: false,
       },
@@ -89,10 +93,12 @@ function RfqLotsTable({
       },
       {
         accessorKey: "maxPrice",
-        header: "Max. Price (₹)",
+        header: "Max. Price",
         meta: { label: "Max. Price" },
         cell: ({ row }) =>
-          row.original.maxPrice != null ? formatCurrency(Number(row.original.maxPrice)) : "—",
+          row.original.maxPrice != null
+            ? formatCurrency(Number(row.original.maxPrice))
+            : "—",
         enableSorting: false,
       },
       {
@@ -100,7 +106,7 @@ function RfqLotsTable({
         header: ({ column }) => (
           <DataTableColumnHeader
             column={column}
-            title="Your Quote (₹)"
+            title="Your Quote"
             helpMessage="Your quote must be ≤ the Max. Price for each lot."
           />
         ),
@@ -110,14 +116,20 @@ function RfqLotsTable({
           if (isSubmitted) {
             return (
               <span className="font-medium tabular-nums">
-                {lot.quotedAmount != null ? formatCurrency(Number(lot.quotedAmount)) : "—"}
+                {lot.quotedAmount != null
+                  ? formatCurrency(Number(lot.quotedAmount))
+                  : "—"}
               </span>
             );
           }
           return (
             <InputCurrency
               allowEmptyAsZero={false}
-              value={lotQuotes[lot.lotId] != null ? Number(lotQuotes[lot.lotId]) : null}
+              value={
+                lotQuotes[lot.lotId] != null
+                  ? Number(lotQuotes[lot.lotId])
+                  : null
+              }
               onChange={(val) =>
                 setLotQuotes((prev) => ({
                   ...prev,
@@ -313,37 +325,48 @@ export function RaStageResponsePageBidder() {
                     Response Status
                   </p>
                   <div className="mt-0.5">
-                    <Badge color={detail.responseStatus === "submitted" ? "green" : detail.responseStatus === "draft" ? "yellow" : "blue"}>
+                    <Badge
+                      color={
+                        detail.responseStatus === "submitted"
+                          ? "green"
+                          : detail.responseStatus === "draft"
+                            ? "yellow"
+                            : "blue"
+                      }
+                    >
                       {RESPONSE_STATUS_LABEL[detail.responseStatus]}
                     </Badge>
                   </div>
                 </div>
-                {detail.responseStatus === "submitted" ? (
-                  <div>
-                    <p className="text-muted-foreground text-xs">
-                      Review Status
-                    </p>
-                    <div className="mt-0.5">
-                      {detail.isShortlisted === true ? (
-                        <Badge color="green">
-                          {BidderRaStagesStatusMessages.SHORTLISTED}
-                        </Badge>
-                      ) : detail.isShortlisted === false ? (
-                        <Badge color="red">{BidderRaStagesStatusMessages.REJECTED}</Badge>
-                      ) : (
-                        <Badge color="yellow">
-                          {BidderRaStagesStatusMessages.UNDER_REVIEW}
-                        </Badge>
-                      )}
-                    </div>
+                <div>
+                  <p className="text-muted-foreground text-xs">
+                    Review Status
+                  </p>
+                  <div className="mt-0.5">
+                    {detail.responseStatus !== "submitted" ? (
+                      <span className="text-muted-foreground text-sm">—</span>
+                    ) : detail.isShortlisted === true ? (
+                      <Badge color="green">
+                        {BidderRaStagesStatusMessages.SHORTLISTED}
+                      </Badge>
+                    ) : detail.isShortlisted === false ? (
+                      <Badge color="red">
+                        {BidderRaStagesStatusMessages.REJECTED}
+                      </Badge>
+                    ) : (
+                      <Badge color="yellow">
+                        {BidderRaStagesStatusMessages.UNDER_REVIEW}
+                      </Badge>
+                    )}
                   </div>
-                ) : null}
+                </div>
               </div>
             </div>
           </div>
 
           {/* Stage not open */}
-          {detail.responseStatus !== "submitted" && detail.stageStatus !== "published" ? (
+          {detail.responseStatus !== "submitted" &&
+          detail.stageStatus !== "published" ? (
             <DataPanelError
               title="Stage not open"
               message={
@@ -375,10 +398,16 @@ export function RaStageResponsePageBidder() {
                   {detail.questions.map((q, i) => (
                     <div key={q.id} className="space-y-1 mb-6">
                       <div className="flex flex-wrap items-center gap-2">
-                        <span className="text-muted-foreground text-sm font-medium">{i + 1}.</span>
+                        <span className="text-muted-foreground text-sm font-medium">
+                          {i + 1}.
+                        </span>
                         <p className="text-sm font-medium">{q.question}</p>
-                        <Badge color="blue">{ANSWER_TYPE_LABEL[q.answerType]}</Badge>
-                        {q.required ? <Badge color="yellow">Required</Badge> : null}
+                        <Badge color="blue">
+                          {ANSWER_TYPE_LABEL[q.answerType]}
+                        </Badge>
+                        {q.required ? (
+                          <Badge color="yellow">Required</Badge>
+                        ) : null}
                       </div>
                       <p className="text-muted-foreground pl-5 text-sm">
                         {Array.isArray(detail.answers[q.id])
@@ -393,18 +422,28 @@ export function RaStageResponsePageBidder() {
                   {detail.questions.map((q, i) => (
                     <div key={q.id} className="space-y-2">
                       <div className="flex flex-wrap items-center gap-2">
-                        <span className="text-muted-foreground text-sm font-medium">{i + 1}.</span>
+                        <span className="text-muted-foreground text-sm font-medium">
+                          {i + 1}.
+                        </span>
                         <p className="text-sm font-medium">{q.question}</p>
-                        <Badge color="blue">{ANSWER_TYPE_LABEL[q.answerType]}</Badge>
-                        {q.required ? <Badge color="yellow">Required</Badge> : null}
+                        <Badge color="blue">
+                          {ANSWER_TYPE_LABEL[q.answerType]}
+                        </Badge>
+                        {q.required ? (
+                          <Badge color="yellow">Required</Badge>
+                        ) : null}
                       </div>
                       <div className="pl-5">
                         <QuestionAnswerField
                           question={q}
                           value={answers[q.id]}
-                          onChange={(value) => setAnswers((prev) => ({ ...prev, [q.id]: value }))}
+                          onChange={(value) =>
+                            setAnswers((prev) => ({ ...prev, [q.id]: value }))
+                          }
                           file={files[q.id] ?? null}
-                          onFileChange={(file) => setFiles((prev) => ({ ...prev, [q.id]: file }))}
+                          onFileChange={(file) =>
+                            setFiles((prev) => ({ ...prev, [q.id]: file }))
+                          }
                           disabled={isBusy}
                         />
                       </div>
