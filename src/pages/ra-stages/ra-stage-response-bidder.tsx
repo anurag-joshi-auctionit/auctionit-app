@@ -189,26 +189,13 @@ export function RaStageResponsePageBidder() {
               <div className="grid grid-cols-2 gap-x-6 gap-y-3">
                 <div>
                   <p className="text-muted-foreground text-xs">Client</p>
-                  <div className="flex items-center gap-2 text-sm">
-                    <span className="font-medium">
-                      {detail.clientName ?? "—"}
-                    </span>
-                    <Badge color="grey">
-                      <span className="font-bold">#{detail.clientId}</span>
-                    </Badge>
-                  </div>
+                  <p className="font-medium">{detail.clientName ?? "—"}</p>
                 </div>
                 <div>
                   <p className="text-muted-foreground text-xs">
                     Auction Number
                   </p>
-                  <Button
-                    variant="link"
-                    className="h-auto p-0 text-sm"
-                    to={`/auctions/${auctionId}`}
-                  >
-                    {detail.auctionNumber ?? "—"}
-                  </Button>
+                  <p className="text-sm">{detail.auctionNumber ?? "—"}</p>
                 </div>
                 <div>
                   <p className="text-muted-foreground text-xs">Starts At</p>
