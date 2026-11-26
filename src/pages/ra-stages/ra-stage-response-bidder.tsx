@@ -8,6 +8,7 @@ import {
   ListDataTable,
   PageHeader,
   Skeleton,
+  formatCurrency,
   formatDateTime,
   toast,
   type ColumnDef,
@@ -90,11 +91,7 @@ function RfqLotsTable({
         header: "Max. Price (₹)",
         meta: { label: "Max. Price" },
         cell: ({ row }) =>
-          row.original.maxPrice ? (
-            <span className="tabular-nums">₹ {row.original.maxPrice}</span>
-          ) : (
-            "—"
-          ),
+          row.original.maxPrice != null ? formatCurrency(Number(row.original.maxPrice)) : "—",
         enableSorting: false,
       },
       {
@@ -106,7 +103,7 @@ function RfqLotsTable({
           if (isSubmitted) {
             return (
               <span className="font-medium tabular-nums">
-                {lot.quotedAmount ? `₹ ${lot.quotedAmount}` : "—"}
+                {lot.quotedAmount != null ? formatCurrency(Number(lot.quotedAmount)) : "—"}
               </span>
             );
           }
