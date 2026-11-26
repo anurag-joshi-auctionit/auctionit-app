@@ -198,7 +198,7 @@ export function RaStageResponsePageBidder() {
                     Response Status
                   </p>
                   <div className="mt-0.5">
-                    <Badge>
+                    <Badge color={detail.responseStatus === "submitted" ? "green" : detail.responseStatus === "draft" ? "yellow" : "blue"}>
                       {RESPONSE_STATUS_LABEL[detail.responseStatus]}
                     </Badge>
                   </div>
@@ -210,13 +210,13 @@ export function RaStageResponsePageBidder() {
                     </p>
                     <div className="mt-0.5">
                       {detail.isShortlisted === true ? (
-                        <Badge>
+                        <Badge color="green">
                           {BidderRaStagesStatusMessages.SHORTLISTED}
                         </Badge>
                       ) : detail.isShortlisted === false ? (
-                        <Badge>{BidderRaStagesStatusMessages.REJECTED}</Badge>
+                        <Badge color="red">{BidderRaStagesStatusMessages.REJECTED}</Badge>
                       ) : (
-                        <Badge>
+                        <Badge color="yellow">
                           {BidderRaStagesStatusMessages.UNDER_REVIEW}
                         </Badge>
                       )}

@@ -45,14 +45,15 @@ const RESPONSE_STATUS_LABEL: Record<RaStageWindow["responseStatus"], string> = {
 };
 
 function ResponseStatusBadge({ status }: { status: RaStageWindow["responseStatus"] }) {
-  return <Badge>{RESPONSE_STATUS_LABEL[status]}</Badge>;
+  const color = status === "submitted" ? "green" : status === "draft" ? "yellow" : "blue";
+  return <Badge color={color}>{RESPONSE_STATUS_LABEL[status]}</Badge>;
 }
 
 function ReviewStatusBadge({ w }: { w: RaStageWindow }) {
   if (w.responseStatus !== "submitted") return <span className="text-muted-foreground">—</span>;
-  if (w.isShortlisted === true) return <Badge>{BidderRaStagesStatusMessages.SHORTLISTED}</Badge>;
-  if (w.isShortlisted === false) return <Badge>{BidderRaStagesStatusMessages.REJECTED}</Badge>;
-  return <Badge>{BidderRaStagesStatusMessages.UNDER_REVIEW}</Badge>;
+  if (w.isShortlisted === true) return <Badge color="green">{BidderRaStagesStatusMessages.SHORTLISTED}</Badge>;
+  if (w.isShortlisted === false) return <Badge color="red">{BidderRaStagesStatusMessages.REJECTED}</Badge>;
+  return <Badge color="yellow">{BidderRaStagesStatusMessages.UNDER_REVIEW}</Badge>;
 }
 
 function ActionCell({ w }: { w: RaStageWindow }) {
