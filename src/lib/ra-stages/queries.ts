@@ -41,11 +41,15 @@ export function useMyRaStageQuery(
 type SubmitInput = {
   answers: RaStageAnswerDraft;
   files: Record<string, File | null>;
+  lotQuotes?: Record<number, string>;
 };
 
-function buildStageFormData(answers: RaStageAnswerDraft, files: Record<string, File | null>): FormData {
+function buildStageFormData(answers: RaStageAnswerDraft, files: Record<string, File | null>, lotQuotes?: Record<number, string>): FormData {
   const formData = new FormData();
   formData.append("answers", JSON.stringify(answers));
+  if (lotQuotes && Object.keys(lotQuotes).length > 0) {
+    formData.append("lotQuotes", JSON.stringify(lotQuotes));
+  }
   for (const [questionId, file] of Object.entries(files)) {
     if (file) formData.append(`file_${questionId}`, file);
   }
@@ -60,7 +64,7 @@ export function useSaveDraftRaStageResponseMutation(
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ answers, files }: SubmitInput) => {
+    mutationFn: async ({ answers, files, lotQuotes }: SubmitInput) => {
       let res: Response;
       try {
         res = await fetch(
@@ -69,7 +73,7 @@ export function useSaveDraftRaStageResponseMutation(
             method: "POST",
             credentials: "include",
             headers: api.appHeaders(),
-            body: buildStageFormData(answers, files),
+            body: buildStageFormData(answers, files, lotQuotes),
           },
         );
       } catch {
@@ -101,7 +105,7 @@ export function useSubmitRaStageResponseMutation(
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ answers, files }: SubmitInput) => {
+    mutationFn: async ({ answers, files, lotQuotes }: SubmitInput) => {
       let res: Response;
       try {
         res = await fetch(
@@ -110,7 +114,7 @@ export function useSubmitRaStageResponseMutation(
             method: "POST",
             credentials: "include",
             headers: api.appHeaders(),
-            body: buildStageFormData(answers, files),
+            body: buildStageFormData(answers, files, lotQuotes),
           },
         );
       } catch {

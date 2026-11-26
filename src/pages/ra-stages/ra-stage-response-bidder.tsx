@@ -4,6 +4,7 @@ import {
   Badge,
   Button,
   DataPanelError,
+  Input,
   PageHeader,
   Skeleton,
   formatDateTime,
@@ -70,6 +71,7 @@ export function RaStageResponsePageBidder() {
 
   const [answers, setAnswers] = useState<RaStageAnswerDraft>({});
   const [files, setFiles] = useState<Record<string, File | null>>({});
+  const [lotQuotes, setLotQuotes] = useState<Record<number, string>>({});
   const [hydrated, setHydrated] = useState(false);
 
   const detail = query.data;
@@ -80,6 +82,13 @@ export function RaStageResponsePageBidder() {
       if (value != null) initial[questionId] = value;
     }
     setAnswers(initial);
+
+    const initialQuotes: Record<number, string> = {};
+    for (const lot of detail.lots) {
+      if (lot.quotedAmount != null) initialQuotes[lot.lotId] = lot.quotedAmount;
+    }
+    setLotQuotes(initialQuotes);
+
     setHydrated(true);
   }
 
@@ -97,13 +106,13 @@ export function RaStageResponsePageBidder() {
   const stageLabel = RA_STAGE_LABELS[stageKey];
 
   const handleSaveDraft = () => {
-    draftMutation.mutate({ answers, files });
+    draftMutation.mutate({ answers, files, lotQuotes });
   };
 
   const handleSubmit = () => {
     if (!detail) return;
     submitMutation.mutate(
-      { answers, files },
+      { answers, files, lotQuotes },
       {
         onSuccess: () => {
           void query.refetch();
@@ -227,78 +236,116 @@ export function RaStageResponsePageBidder() {
             </div>
           </div>
 
+          {/* Stage not open */}
+          {detail.responseStatus !== "submitted" && detail.stageStatus !== "published" ? (
+            <DataPanelError
+              title="Stage not open"
+              message={
+                detail.stageStatus === "draft"
+                  ? BidderRaStagesStatusMessages.STAGE_NOT_YET_OPEN
+                  : BidderRaStagesStatusMessages.STAGE_CLOSED
+              }
+            />
+          ) : null}
+
+          {/* Lot quotes (RFQ) */}
+          {detail.lots.length > 0 ? (
+            <div className="space-y-3">
+              <h3 className="text-lg font-semibold">Quote by Lot</h3>
+              <div className="border-border overflow-hidden rounded-lg border">
+                <table className="w-full text-sm">
+                  <thead className="bg-muted/50">
+                    <tr>
+                      <th className="text-muted-foreground px-4 py-2.5 text-left font-medium">Lot #</th>
+                      <th className="text-muted-foreground px-4 py-2.5 text-left font-medium">Material</th>
+                      <th className="text-muted-foreground px-4 py-2.5 text-left font-medium">Qty</th>
+                      <th className="text-muted-foreground px-4 py-2.5 text-left font-medium">Your Quote (₹)</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-border divide-y">
+                    {detail.lots.map((lot) => (
+                      <tr key={lot.lotId}>
+                        <td className="px-4 py-3 font-medium">{lot.lotNumber ?? `#${lot.lotId}`}</td>
+                        <td className="text-muted-foreground px-4 py-3">{lot.materialName ?? "—"}</td>
+                        <td className="text-muted-foreground px-4 py-3 whitespace-nowrap">
+                          {lot.quantity ? `${lot.quantity}${lot.uom ? ` ${lot.uom}` : ""}` : "—"}
+                        </td>
+                        <td className="px-4 py-3">
+                          {detail.responseStatus === "submitted" ? (
+                            <span className="font-medium">
+                              {lot.quotedAmount ? `₹ ${lot.quotedAmount}` : "—"}
+                            </span>
+                          ) : (
+                            <Input
+                              type="number"
+                              min={0}
+                              step="0.01"
+                              className="max-w-40"
+                              value={lotQuotes[lot.lotId] ?? ""}
+                              onChange={(e) =>
+                                setLotQuotes((prev) => ({ ...prev, [lot.lotId]: e.target.value }))
+                              }
+                              disabled={isBusy || detail.stageStatus !== "published"}
+                              placeholder="0.00"
+                            />
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          ) : null}
+
           {/* Questions */}
-          <div className="space-y-3">
-            {detail.responseStatus === "submitted" ? (
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold">Questions</h3>
-                {detail.questions.map((q, i) => (
-                  <div key={q.id} className="space-y-1 mb-6">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <span className="text-muted-foreground text-sm font-medium">
-                        {i + 1}.
-                      </span>
-                      <p className="text-sm font-medium">{q.question}</p>
-                      <Badge color="blue">
-                        {ANSWER_TYPE_LABEL[q.answerType]}
-                      </Badge>
-                      {q.required ? (
-                        <Badge color="yellow">Required</Badge>
-                      ) : null}
+          {detail.questions.length > 0 ? (
+            <div className="space-y-3">
+              <h3 className="text-lg font-semibold">Questions</h3>
+              {detail.responseStatus === "submitted" ? (
+                <div className="space-y-4">
+                  {detail.questions.map((q, i) => (
+                    <div key={q.id} className="space-y-1 mb-6">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className="text-muted-foreground text-sm font-medium">{i + 1}.</span>
+                        <p className="text-sm font-medium">{q.question}</p>
+                        <Badge color="blue">{ANSWER_TYPE_LABEL[q.answerType]}</Badge>
+                        {q.required ? <Badge color="yellow">Required</Badge> : null}
+                      </div>
+                      <p className="text-muted-foreground pl-5 text-sm">
+                        {Array.isArray(detail.answers[q.id])
+                          ? (detail.answers[q.id] as string[]).join(", ")
+                          : ((detail.answers[q.id] as string | null) ?? "—")}
+                      </p>
                     </div>
-                    <p className="text-muted-foreground pl-5 text-sm">
-                      {Array.isArray(detail.answers[q.id])
-                        ? (detail.answers[q.id] as string[]).join(", ")
-                        : ((detail.answers[q.id] as string | null) ?? "—")}
-                    </p>
-                  </div>
-                ))}
-              </div>
-            ) : detail.stageStatus !== "published" ? (
-              <DataPanelError
-                title="Stage not open"
-                message={
-                  detail.stageStatus === "draft"
-                    ? BidderRaStagesStatusMessages.STAGE_NOT_YET_OPEN
-                    : BidderRaStagesStatusMessages.STAGE_CLOSED
-                }
-              />
-            ) : (
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold">Questions</h3>
-                {detail.questions.map((q, i) => (
-                  <div key={q.id} className="space-y-2">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <span className="text-muted-foreground text-sm font-medium">
-                        {i + 1}.
-                      </span>
-                      <p className="text-sm font-medium">{q.question}</p>
-                      <Badge color="blue">
-                        {ANSWER_TYPE_LABEL[q.answerType]}
-                      </Badge>
-                      {q.required ? (
-                        <Badge color="yellow">Required</Badge>
-                      ) : null}
+                  ))}
+                </div>
+              ) : detail.stageStatus === "published" ? (
+                <div className="space-y-4">
+                  {detail.questions.map((q, i) => (
+                    <div key={q.id} className="space-y-2">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className="text-muted-foreground text-sm font-medium">{i + 1}.</span>
+                        <p className="text-sm font-medium">{q.question}</p>
+                        <Badge color="blue">{ANSWER_TYPE_LABEL[q.answerType]}</Badge>
+                        {q.required ? <Badge color="yellow">Required</Badge> : null}
+                      </div>
+                      <div className="pl-5">
+                        <QuestionAnswerField
+                          question={q}
+                          value={answers[q.id]}
+                          onChange={(value) => setAnswers((prev) => ({ ...prev, [q.id]: value }))}
+                          file={files[q.id] ?? null}
+                          onFileChange={(file) => setFiles((prev) => ({ ...prev, [q.id]: file }))}
+                          disabled={isBusy}
+                        />
+                      </div>
                     </div>
-                    <div className="pl-5">
-                      <QuestionAnswerField
-                        question={q}
-                        value={answers[q.id]}
-                        onChange={(value) =>
-                          setAnswers((prev) => ({ ...prev, [q.id]: value }))
-                        }
-                        file={files[q.id] ?? null}
-                        onFileChange={(file) =>
-                          setFiles((prev) => ({ ...prev, [q.id]: file }))
-                        }
-                        disabled={isBusy}
-                      />
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
+                  ))}
+                </div>
+              ) : null}
+            </div>
+          ) : null}
         </div>
       )}
     </div>

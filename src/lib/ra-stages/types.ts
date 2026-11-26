@@ -35,6 +35,15 @@ export type RaStageQuestion = {
   fileUpload: { allowedFileTypes: string[]; maxFileSizeMb: number | null };
 };
 
+export type RfqLot = {
+  lotId: number;
+  lotNumber: string | null;
+  materialName: string | null;
+  quantity: string | null;
+  uom: string | null;
+  quotedAmount: string | null;
+};
+
 export type MyRaStageDetail = {
   stageKey: RaStageKey;
   stageStatus: RaStageStatus;
@@ -48,6 +57,7 @@ export type MyRaStageDetail = {
   rejectionReason: string | null;
   questions: RaStageQuestion[];
   answers: Record<string, string | string[] | null>;
+  lots: RfqLot[];
 };
 
 /** Non-file answers only — file answers are sent as multipart file fields. */
