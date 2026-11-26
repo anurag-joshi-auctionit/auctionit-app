@@ -41,6 +41,7 @@ export type RfqLot = {
   materialName: string | null;
   quantity: string | null;
   uom: string | null;
+  maxPrice: string | null;
   quotedAmount: string | null;
 };
 

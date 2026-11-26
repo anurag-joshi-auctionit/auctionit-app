@@ -86,6 +86,18 @@ function RfqLotsTable({
         enableSorting: false,
       },
       {
+        accessorKey: "maxPrice",
+        header: "Max. Price (₹)",
+        meta: { label: "Max. Price" },
+        cell: ({ row }) =>
+          row.original.maxPrice ? (
+            <span className="tabular-nums">₹ {row.original.maxPrice}</span>
+          ) : (
+            "—"
+          ),
+        enableSorting: false,
+      },
+      {
         id: "quote",
         header: "Your Quote (₹)",
         enableHiding: false,
