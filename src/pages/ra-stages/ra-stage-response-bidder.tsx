@@ -1,7 +1,5 @@
-import {
-  BidderRaStagesStatusMessages,
-  BidderRaStagesValidationMessages,
-} from "@auctionit/messages/bidder-ra-stages";
+import { BidderRaStagesStatusMessages } from "@auctionit/messages/bidder-ra-stages";
+import { ApiError } from "@auctionit/lib";
 import {
   Badge,
   Button,
@@ -104,32 +102,15 @@ export function RaStageResponsePageBidder() {
 
   const handleSubmit = () => {
     if (!detail) return;
-    for (const q of detail.questions) {
-      if (!q.required) continue;
-      if (q.answerType === "file_upload") {
-        if (!files[q.id]) {
-          toast.error(
-            BidderRaStagesValidationMessages.ALL_REQUIRED_QUESTIONS_MUST_BE_ANSWERED,
-          );
-          return;
-        }
-        continue;
-      }
-      const value = answers[q.id];
-      const hasValue = Array.isArray(value) ? value.length > 0 : !!value;
-      if (!hasValue) {
-        toast.error(
-          BidderRaStagesValidationMessages.ALL_REQUIRED_QUESTIONS_MUST_BE_ANSWERED,
-        );
-        return;
-      }
-    }
-
     submitMutation.mutate(
       { answers, files },
       {
         onSuccess: () => {
           void query.refetch();
+        },
+        onError: (err) => {
+          const body = err instanceof ApiError ? (err.body as { error?: string } | null) : null;
+          toast.error(body?.error ?? "Failed to submit response.");
         },
       },
     );
