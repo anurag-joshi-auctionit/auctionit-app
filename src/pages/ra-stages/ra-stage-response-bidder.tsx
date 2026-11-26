@@ -24,6 +24,7 @@ import {
   useSubmitRaStageResponseMutation,
 } from "@/lib/ra-stages/queries";
 import {
+  RA_STAGE_FULL_LABELS,
   RA_STAGE_LABELS,
   type RaStageAnswerDraft,
   type RaStageAnswerType,
@@ -221,7 +222,7 @@ export function RaStageResponsePageBidder() {
     );
   }
 
-  const stageLabel = RA_STAGE_LABELS[stageKey];
+  const stageLabel = RA_STAGE_FULL_LABELS[stageKey];
 
   const handleSaveDraft = () => {
     draftMutation.mutate({ answers, files, lotQuotes });
