@@ -77,6 +77,9 @@ function ActionCell({ w }: { w: RaStageWindow }) {
       </Button>
     );
   }
+  if (w.stageStatus !== "closed" && (w.responseStatus === "invited" || w.responseStatus === "draft")) {
+    return <Button size="sm" disabled>Not Yet Open</Button>;
+  }
   return null;
 }
 
