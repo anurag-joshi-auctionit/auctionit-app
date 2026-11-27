@@ -196,7 +196,12 @@ export function createLiveChannel<TSnapshot, TDelta, TStanding>(
 
   function openSocket(): void {
     if (socket) return;
-    const next = io(apiUrl, {
+    // socket.io-client treats any path in the URL as the namespace, so passing
+    // apiUrl (which ends in /api/v1) would connect to the "/api/v1" namespace
+    // instead of the default "/". Use the page's own origin so the socket always
+    // lands on the right host regardless of what VITE_API_URL is baked into the
+    // image.
+    const next = io(window.location.origin, {
       auth: { appId },
       withCredentials: true,
       transports: SOCKET_TRANSPORTS,
