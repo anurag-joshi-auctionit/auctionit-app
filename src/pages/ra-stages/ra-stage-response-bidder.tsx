@@ -15,7 +15,7 @@ import {
   type ColumnDef,
 } from "@auctionit/ui";
 import { Edit05, Loading01, Save01 } from "@untitledui/icons";
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useRef, useState } from "react";
 import { useLocation, useParams } from "react-router-dom";
 import { QuestionAnswerField } from "@/components/ra-stages/question-answer-field";
 import {
@@ -49,6 +49,41 @@ const ANSWER_TYPE_LABEL: Record<RaStageAnswerType, string> = {
   file_upload: "File Upload",
 };
 
+function QuoteCellInput({
+  lot,
+  isBusy,
+  stageOpen,
+  lotQuotesRef,
+  setLotQuotes,
+}: {
+  lot: RfqLot;
+  isBusy: boolean;
+  stageOpen: boolean;
+  lotQuotesRef: React.RefObject<Record<number, string>>;
+  setLotQuotes: React.Dispatch<React.SetStateAction<Record<number, string>>>;
+}) {
+  const [value, setValue] = useState<number | null>(() => {
+    const v = lotQuotesRef.current[lot.lotId];
+    return v != null ? Number(v) : null;
+  });
+  return (
+    <InputCurrency
+      allowEmptyAsZero={false}
+      value={value}
+      onChange={(val) => {
+        setValue(val);
+        setLotQuotes((prev) => ({
+          ...prev,
+          [lot.lotId]: val != null ? String(val) : "",
+        }));
+      }}
+      disabled={isBusy || !stageOpen}
+      className="h-8 max-w-xs tabular-nums"
+      autoComplete="off"
+    />
+  );
+}
+
 function RfqLotsTable({
   lots,
   isSubmitted,
@@ -64,6 +99,11 @@ function RfqLotsTable({
   lotQuotes: Record<number, string>;
   setLotQuotes: React.Dispatch<React.SetStateAction<Record<number, string>>>;
 }) {
+  // Ref so QuoteCellInput can read the current value at mount without
+  // pulling lotQuotes into useMemo deps (which would recompute columns on every keystroke).
+  const lotQuotesRef = useRef(lotQuotes);
+  lotQuotesRef.current = lotQuotes;
+
   const columns = useMemo<ColumnDef<RfqLot>[]>(
     () => [
       {
@@ -123,29 +163,19 @@ function RfqLotsTable({
             );
           }
           return (
-            <InputCurrency
-              allowEmptyAsZero={false}
-              value={
-                lotQuotes[lot.lotId] != null
-                  ? Number(lotQuotes[lot.lotId])
-                  : null
-              }
-              onChange={(val) =>
-                setLotQuotes((prev) => ({
-                  ...prev,
-                  [lot.lotId]: val != null ? String(val) : "",
-                }))
-              }
-              disabled={isBusy || !stageOpen}
-              className="h-8 max-w-xs tabular-nums"
-              autoComplete="off"
+            <QuoteCellInput
+              lot={lot}
+              isBusy={isBusy}
+              stageOpen={stageOpen}
+              lotQuotesRef={lotQuotesRef}
+              setLotQuotes={setLotQuotes}
             />
           );
         },
         enableSorting: false,
       },
     ],
-    [isSubmitted, stageOpen, isBusy, lotQuotes, setLotQuotes],
+    [isSubmitted, stageOpen, isBusy, setLotQuotes, lotQuotesRef],
   );
 
   return (
