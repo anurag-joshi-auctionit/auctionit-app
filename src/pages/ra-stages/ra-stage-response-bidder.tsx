@@ -178,6 +178,11 @@ export function RaStageResponsePageBidder() {
     validAuctionId ? auctionId : undefined,
     stageKey,
   );
+  const rfiQuery = useMyRaStageQuery(
+    stageKey === "rfp" && validAuctionId ? auctionId : undefined,
+    "rfi",
+  );
+  const rfiDetail = rfiQuery.data;
   const submitMutation = useSubmitRaStageResponseMutation(
     auctionId,
     stageKey ?? "rfi",
@@ -247,6 +252,24 @@ export function RaStageResponsePageBidder() {
   };
 
   const isBusy = submitMutation.isPending || draftMutation.isPending;
+
+  const handleCopyFromRfi = () => {
+    if (!rfiDetail || !detail) return;
+    const fileUploadQuestionIds = new Set(
+      detail.questions
+        .filter((q) => q.answerType === "file_upload")
+        .map((q) => q.id),
+    );
+    setAnswers((prev) => {
+      const copied: RaStageAnswerDraft = { ...prev };
+      for (const [qId, val] of Object.entries(rfiDetail.answers)) {
+        if (!fileUploadQuestionIds.has(qId) && val != null) {
+          copied[qId] = val as string | string[];
+        }
+      }
+      return copied;
+    });
+  };
 
   return (
     <div className="space-y-6 p-4">
@@ -377,8 +400,8 @@ export function RaStageResponsePageBidder() {
             />
           ) : null}
 
-          {/* Lot quotes (RFQ) */}
-          {detail.lots.length > 0 ? (
+          {/* Lot quotes (RFQ only) */}
+          {stageKey === "rfq" && detail.lots.length > 0 ? (
             <RfqLotsTable
               lots={detail.lots}
               isSubmitted={detail.responseStatus === "submitted"}
@@ -389,10 +412,25 @@ export function RaStageResponsePageBidder() {
             />
           ) : null}
 
-          {/* Questions */}
-          {detail.questions.length > 0 ? (
+          {/* Questions (RFI and RFP only) */}
+          {stageKey !== "rfq" && detail.questions.length > 0 ? (
             <div className="space-y-3">
-              <h3 className="text-lg font-semibold">Questions</h3>
+              <div className="flex items-center justify-between">
+                <h3 className="text-lg font-semibold">Questions</h3>
+                {stageKey === "rfp" &&
+                rfiDetail?.responseStatus === "submitted" &&
+                detail.stageStatus === "published" &&
+                detail.responseStatus !== "submitted" ? (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleCopyFromRfi}
+                    disabled={isBusy}
+                  >
+                    Copy from RFI
+                  </Button>
+                ) : null}
+              </div>
               {detail.responseStatus === "submitted" ? (
                 <div className="space-y-4">
                   {detail.questions.map((q, i) => (

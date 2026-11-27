@@ -19,7 +19,7 @@ export function useRaStageWindows() {
   const { api } = useAuth();
   return useQuery({
     queryKey: ["ra-stage-windows"],
-    queryFn: () => api.get<RaStageWindow[]>("/bidder-ra-stages/my-stages"),
+    queryFn: () => api.get<RaStageWindow[]>("/auctions/me/ra-stages"),
     refetchInterval: 60_000,
     refetchIntervalInBackground: false,
   });

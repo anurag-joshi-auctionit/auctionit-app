@@ -20,7 +20,7 @@ export function useMyRaStageInvitationsQuery(auctionId: number | undefined) {
   return useQuery({
     queryKey: myRaStagesKeys.invitations(auctionId ?? 0),
     queryFn: () =>
-      api.get<MyRaStageInvitation[]>(`/bidder-ra-stages/auctions/${auctionId}`),
+      api.get<MyRaStageInvitation[]>(`/auctions/me/${auctionId}/ra-stages`),
     enabled: auctionId != null,
   });
 }
@@ -33,7 +33,7 @@ export function useMyRaStageQuery(
   return useQuery({
     queryKey: myRaStagesKeys.stage(auctionId ?? 0, stageKey ?? "rfi"),
     queryFn: () =>
-      api.get<MyRaStageDetail>(`/bidder-ra-stages/auctions/${auctionId}/${stageKey}`),
+      api.get<MyRaStageDetail>(`/auctions/me/${auctionId}/ra-stages/${stageKey}`),
     enabled: auctionId != null && stageKey != null,
   });
 }
@@ -68,7 +68,7 @@ export function useSaveDraftRaStageResponseMutation(
       let res: Response;
       try {
         res = await fetch(
-          `${api.baseUrl}/bidder-ra-stages/auctions/${auctionId}/${stageKey}/save-draft`,
+          `${api.baseUrl}/auctions/me/${auctionId}/ra-stages/${stageKey}/draft`,
           {
             method: "POST",
             credentials: "include",
@@ -109,7 +109,7 @@ export function useSubmitRaStageResponseMutation(
       let res: Response;
       try {
         res = await fetch(
-          `${api.baseUrl}/bidder-ra-stages/auctions/${auctionId}/${stageKey}/submit`,
+          `${api.baseUrl}/auctions/me/${auctionId}/ra-stages/${stageKey}/submit`,
           {
             method: "POST",
             credentials: "include",
