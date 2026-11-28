@@ -72,6 +72,8 @@ import {
 import {
   type LiveTransportKind,
   type MergedLot,
+  beatsAmount,
+  bidDirectionFor,
   compareLotsByDisplayOrder,
   useLiveAuctions,
 } from "@/lib/use-live-auction";
@@ -423,7 +425,8 @@ export function LiveLotsPanelBidder({
         if (ov.yourRank !== undefined) next.yourRank = ov.yourRank;
       } else if (
         ov.amount != null &&
-        (l.currentBid == null || ov.amount > l.currentBid)
+        (l.currentBid == null ||
+          beatsAmount(ov.amount, l.currentBid, bidDirectionFor(l.auctionType)))
       ) {
         next.currentBid = ov.amount;
         next.bidCount = Math.max(l.bidCount, 1);
@@ -549,7 +552,7 @@ export function LiveLotsPanelBidder({
         const amountCaughtUp =
           ov.amount == null ||
           lot.currentBid == null ||
-          lot.currentBid >= ov.amount;
+          !beatsAmount(ov.amount, lot.currentBid, bidDirectionFor(lot.auctionType));
         const revUnknown = lot.rev == null || ov.rev == null;
         const standingCaughtUp =
           ov.status == null ||

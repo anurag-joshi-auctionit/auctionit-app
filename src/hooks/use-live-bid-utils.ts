@@ -1,10 +1,9 @@
 import { ApiError } from "@auctionit/lib";
 import { LiveBidMessages } from "@auctionit/messages";
 import {
-  hasStandingBid,
+  manualBidAmountError,
   rankBidAmountError,
   rankBoundsLot,
-  snapBidAmount,
   type MergedLot,
 } from "@/lib/use-live-auction";
 
@@ -41,20 +40,11 @@ export function localBidRejectReason(
       amount,
     );
   }
-  const snapped = snapBidAmount(
+  // manualBidAmountError is fully direction-aware via lot.auctionType.
+  return manualBidAmountError(
     { ...lot, startBidPrice, currentBid: lot.currentBid ?? startBidPrice },
     amount,
   );
-  if (snapped.kind === "ok") return null;
-  if (snapped.kind === "min") {
-    if (hasStandingBid(lot)) return LiveBidMessages.BID_AT_LEAST;
-    return lot.sbpPlusIncrement
-      ? LiveBidMessages.BID_AT_LEAST_START_PLUS_INCREMENT
-      : LiveBidMessages.BID_AT_LEAST_START;
-  }
-  if (snapped.kind === "maxLimit") return LiveBidMessages.BID_MAX_LIMIT;
-  if (snapped.kind === "cap") return LiveBidMessages.BID_CAP;
-  return LiveBidMessages.BID_INCREMENT;
 }
 
 export function errMsg(err: unknown, fallback: string): string {

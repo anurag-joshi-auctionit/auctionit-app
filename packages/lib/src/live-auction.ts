@@ -326,6 +326,7 @@ export {
   incrementGridBase,
   isOnIncrementGrid,
   isReverseAuction,
+  manualBidAmountError,
   maxBidFor,
   minBidFor,
   minProxyMaxFor,

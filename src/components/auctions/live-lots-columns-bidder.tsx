@@ -13,6 +13,7 @@ import type { MergedLot } from "@/lib/use-live-auction";
 import {
   formatCountdown,
   hasStandingBid,
+  isReverseAuction,
   lotDisplayStatus,
   lotStartLeft,
   lotTimeLeft,
@@ -353,10 +354,10 @@ function createLiveAuctionTableColumns({
               )
             ) : standing ? (
               <span className={standingClass}>
-                Winning: {formatCurrency(lot.currentBid)}
+                {isReverseAuction(lot.auctionType) ? "Lowest" : "Winning"}: {formatCurrency(lot.currentBid)}
               </span>
             ) : (
-              <span className="text-muted-foreground">Winning: —</span>
+              <span className="text-muted-foreground">{isReverseAuction(lot.auctionType) ? "Lowest" : "Winning"}: —</span>
             )}
           </div>
         );
