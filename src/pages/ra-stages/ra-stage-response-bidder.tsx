@@ -66,21 +66,28 @@ function QuoteCellInput({
     const v = lotQuotesRef.current[lot.lotId];
     return v != null ? Number(v) : null;
   });
+  const maxPrice = lot.maxPrice != null ? Number(lot.maxPrice) : null;
+  const exceedsMax = value != null && maxPrice != null && value > maxPrice;
   return (
-    <InputCurrency
-      allowEmptyAsZero={false}
-      value={value}
-      onChange={(val) => {
-        setValue(val);
-        setLotQuotes((prev) => ({
-          ...prev,
-          [lot.lotId]: val != null ? String(val) : "",
-        }));
-      }}
-      disabled={isBusy || !stageOpen}
-      className="h-8 max-w-xs tabular-nums"
-      autoComplete="off"
-    />
+    <div className="space-y-1">
+      <InputCurrency
+        allowEmptyAsZero={false}
+        value={value}
+        onChange={(val) => {
+          setValue(val);
+          setLotQuotes((prev) => ({
+            ...prev,
+            [lot.lotId]: val != null ? String(val) : "",
+          }));
+        }}
+        disabled={isBusy || !stageOpen}
+        className={`h-8 max-w-xs tabular-nums${exceedsMax ? " border-destructive focus-visible:ring-destructive" : ""}`}
+        autoComplete="off"
+      />
+      {exceedsMax ? (
+        <p className="text-destructive text-xs">Cannot exceed Max. Price</p>
+      ) : null}
+    </div>
   );
 }
 
